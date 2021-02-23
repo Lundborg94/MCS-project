@@ -5,3 +5,4 @@ Group consisting of:
 Jesper Lundborg
 Johan Wassberg
 Andreas Berg
+Jessica Feder
