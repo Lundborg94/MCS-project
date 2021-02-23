@@ -4,6 +4,7 @@ env
 
 # vs code files
 .vscode
+.idea
 
 # (make exception for requirements.txt)
 !requirements.txt
