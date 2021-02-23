@@ -7,7 +7,7 @@ import json
 
 
 def main():
-    print('Hello World!');
+    print('Hello World!')
 
 
 def on_message_received(topic, payload, dup, qos, retain, **kwargs):
@@ -74,7 +74,7 @@ def begin_resources():
     print("Subscribed with {}".format(str(subscribe_result['qos'])))
 
     while True:
-        """
+        
         message = "test"
         print("Publishing message to topic '{}': {}".format(topic, message))
         mqtt_connection.publish(
@@ -82,7 +82,7 @@ def begin_resources():
             payload=message,
             qos=mqtt.QoS.AT_LEAST_ONCE
         )
-        """
+        
         time.sleep(5)
 
 
