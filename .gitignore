@@ -1,0 +1,14 @@
+# Virtual Environments
+venv
+env
+
+# vs code files
+.vscode
+
+# (make exception for requirements.txt)
+!requirements.txt
+
+# Ignore keys
+*.pem.crt
+*.pem
+*.key
