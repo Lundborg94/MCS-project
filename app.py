@@ -1,57 +1,59 @@
-from flask import Flask, render_template, url_for, request, redirect
-from flask_sqlalchemy import SQLAlchemy
-from datetime import date, datetime
+from flask import Flask, Response, render_template, redirect, url_for, request
+from flask_login import LoginManager, UserMixin, login_required
 
-from werkzeug.utils import redirect
 
-app = Flask (__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db' # 3 forward slash relative path, 4 are absolute path
-db = SQLAlchemy(app)
+app = Flask(__name__)
+login_manager = LoginManager()
+login_manager.init_app(app)
 
-class Todo(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.String(200), nullable=False)
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __repr__(self):
-        return '<Task %r>' % self.id
+class User(UserMixin):
+    # proxy for a database of users
+    user_database = {"JohnDoe": ("JohnDoe", "John"),
+               "JaneDoe": ("JaneDoe", "Jane")}
 
-@app.route('/', methods=['POST', 'GET'])
-def index():
+    def __init__(self, username, password):
+        self.id = username
+        self.password = password
+
+    @classmethod
+    def get(cls,id):
+        return cls.user_database.get(id)
+
+
+@login_manager.request_loader
+def load_user(request):
+    token = request.headers.get('Authorization')
+    if token is None:
+        token = request.args.get('token')
+
+    if token is not None:
+        username,password = token.split(":") # naive token
+        user_entry = User.get(username)
+        if (user_entry is not None):
+            user = User(user_entry[0],user_entry[1])
+            if (user.password == password):
+                return user
+    return None
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
     if request.method == 'POST':
-        task_content = request.form['content']
-        new_task = Todo(content=task_content)
+        if request.form['username'] != 'admin' or request.form['password'] != 'admin':
+            error = 'Invalid Credentials. Please try again.'
+        else:
+            return redirect(url_for('home'))
+    return render_template('login.html', error=error)
 
-        try:
-            db.session.add(new_task)
-            db.session.commit()
-            return redirect('/')
+@app.route('/')
+def home():
+    return render_template('home.html')
 
-        except:
-            return 'There was an issue adding your task'
-    else:
-        tasks = Todo.query.order_by(Todo.date_created).all()
-        return render_template('index.html', tasks=tasks)
-    
-@app.route('/delete/<int:id>')
-def delete(id): 
-    task_to_delete = Todo.query.get_or_404(id)
 
-    try:
-        db.session.delete(task_to_delete)
-        db.session.commit()
-        return redirect('/')
 
-    except:
-        return 'There was a problem deleting that task'
 
-@app.route('/update/<int:id>', methods=['GET', 'POST'])
-def update(id):
-    task = Todo.query.get_or_404(id)
-    if request.method == 'POST':
-        pass
-    else:
-        return render_template('update.html', task = task)
-
-if __name__ == "__main__":
-    app.run(debug=True)
+if __name__ == '__main__':
+    app.config["SECRET_KEY"] = "ITSASECRET"
+    app.run(port=5000,debug=True)
