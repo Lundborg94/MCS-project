@@ -12,8 +12,8 @@ class User(UserMixin):
     user_database = {"JohnDoe": ("JohnDoe", "John"),
                "JaneDoe": ("JaneDoe", "Jane")}
 
-    def __init__(self, username, password):
-        self.id = username
+    def __init__(self, deviceID, password):
+        self.id = deviceID
         self.password = password
 
     @classmethod
@@ -28,8 +28,8 @@ def load_user(request):
         token = request.args.get('token')
 
     if token is not None:
-        username,password = token.split(":") # naive token
-        user_entry = User.get(username)
+        deviceID,password = token.split(":") # naive token
+        user_entry = User.get(deviceID)
         if (user_entry is not None):
             user = User(user_entry[0],user_entry[1])
             if (user.password == password):
@@ -41,7 +41,7 @@ def load_user(request):
 def login():
     error = None
     if request.method == 'POST':
-        if request.form['username'] != 'admin' or request.form['password'] != 'admin':
+        if request.form['deviceID'] != 'admin' or request.form['password'] != 'admin':
             error = 'Invalid Credentials. Please try again.'
         else:
             return redirect(url_for('home'))
