@@ -4,12 +4,13 @@ env
 
 # vs code files
 .vscode
+
+# pycharm files
 .idea
 
-# (make exception for requirements.txt)
-!requirements.txt
-
 # Ignore keys
-*.pem.crt
-*.pem
-*.key
+secrets
+!secrets/readme.txt
+
+# Other files and folders
+__pycache__
