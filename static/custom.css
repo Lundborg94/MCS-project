@@ -1,0 +1,67 @@
+
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&family=Roboto+Mono&display=swap');
+
+* {
+	box-sizing: border-box;
+}
+
+.container {
+  margin-top: 100px;
+  background: rgb(240, 243, 243);
+  border-radius: 5px;
+  width:250px;
+  height: 300px;
+  }
+
+
+.form-field {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  font-size: 15px;
+}
+
+input[type=text] {
+  border: none
+}
+
+
+input[type=password] {
+  border: none
+}
+
+.form-field2 {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.h5 {
+  text-align: center;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  font-family: 'DotGothic16', sans-serif;
+  color: rgb(37, 36, 36);
+}
+
+
+body {
+  background: #bdc3c7;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #2c3e50, #bdc3c7);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #cfe7eb, #bdc3c7); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  font-family: 'Roboto Mono', monospace;
+
+ }
+
+ .error {
+   font-size: 9px;
+   margin-top: 1rem;
+   text-align: center;
+   
+ }
+
+
+
+

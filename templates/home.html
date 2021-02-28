@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,11 +8,14 @@
     rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" 
     crossorigin="anonymous">
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="templates/custom.css">
-  </head>
-    <title>Welcome!</title>
-  </head>
-  <body>
-    <p>Testing testing testing<strong>body</strong> tag will appear on the page, just like this <strong>p</strong> tag and its contents.</p>
-  </body>
+    <link rel="stylesheet" href="{{ url_for('static', filename='custom.css') }}">
+
+    <title>Motorcycle Crash Sensor</title>
+</head>
+<body>
+    <div class="container">
+    <h1>Welcome to MCS Dashboard</h1>
+    </div>
+</body>
+
 </html>
