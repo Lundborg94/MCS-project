@@ -1,11 +1,12 @@
 import requests
 import json
 
+
 def get_configurations():
-    with open("cumulocity_config.json", "r") as file:
+    with open("project_config_file.json", "r") as file:
         config = file.read()
 
-    return json.loads(config)
+    return json.loads(config)['cumulocity_config']
 
 
 def get_location():
@@ -14,8 +15,9 @@ def get_location():
     username = config['username']
     password = config['password']
 
-    payload = { 'fragmentType': 'c8y_Position' }
-    r = requests.get('https://{}.eu-latest.cumulocity.com/inventory/managedObjects'.format(username.lower()), auth=(username, password), params=payload)
+    payload = {'fragmentType': 'c8y_Position'}
+    r = requests.get('https://{}.eu-latest.cumulocity.com/inventory/managedObjects'.format(username.lower()),
+                     auth=(username, password), params=payload)
 
     response = r.json()
 

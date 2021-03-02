@@ -23,10 +23,10 @@ def on_connection_resumed(connection, return_code, session_present, **kwargs):
 
 
 def get_mqtt_config():
-    with open("mqtt_config.json", "r") as file:
+    with open("project_config_file.json", "r") as file:
         config = file.read()
 
-    return json.loads(config)
+    return json.loads(config)['mqtt_config']
 
 
 def begin_resources():
