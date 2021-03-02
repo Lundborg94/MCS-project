@@ -1,15 +1,12 @@
+import sqlite3
+
 from flask import Flask, Response, render_template, redirect, url_for, request
 from flask_login import LoginManager, UserMixin, login_required
-from database_context import MCSTestContext
-
-import sqlite3
+from database_context import DeviceTestContext
 
 app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
-
-conn = sqlite3.connect("databases/mcsservice.db")
-context = MCSTestContext(conn)
 
 
 class User(UserMixin):
@@ -46,15 +43,15 @@ def load_user(request):
 def login():
     error = None
     if request.method == 'POST':
-        if request.form['deviceID'] != 'admin' or request.form['password'] != 'admin':
-            error = 'Invalid Credentials. Please try again.'
-        else:
-            return redirect(url_for('home'))
+        device_id = request.form['deviceID']
+        req_password = request.form['password']
 
-        #device_id = request.form['deviceID']
-        #password = request.form['password']
-
-
+        with sqlite3.connect('databases/mcsservice.db') as conn:
+            context = DeviceTestContext(sqlite_connection=conn)  # TODO: Singleton?
+            if req_password == context.get_device_password(device_id):
+                return redirect(url_for('home'))
+            else:
+                error = 'Invalid Credentials. Please try again.'
 
     return render_template('login.html', error=error)
 
@@ -67,3 +64,4 @@ def home():
 if __name__ == '__main__':
     app.config["SECRET_KEY"] = "ITSASECRET"
     app.run(port=5000, debug=True)
+

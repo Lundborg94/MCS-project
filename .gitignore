@@ -12,5 +12,9 @@ env
 secrets
 !secrets/readme.txt
 
+# Databases
+databases
+!databases/readme.txt
+
 # Other files and folders
 __pycache__
