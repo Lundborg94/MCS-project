@@ -1,9 +1,15 @@
 from flask import Flask, Response, render_template, redirect, url_for, request
 from flask_login import LoginManager, UserMixin, login_required
+from database_context import MCSTestContext
+
+import sqlite3
 
 app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+conn = sqlite3.connect("databases/mcsservice.db")
+context = MCSTestContext(conn)
 
 
 class User(UserMixin):
@@ -44,6 +50,12 @@ def login():
             error = 'Invalid Credentials. Please try again.'
         else:
             return redirect(url_for('home'))
+
+        #device_id = request.form['deviceID']
+        #password = request.form['password']
+
+
+
     return render_template('login.html', error=error)
 
 
