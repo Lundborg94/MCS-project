@@ -22,7 +22,11 @@ def create_tables():
                 Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 DeviceId NVARCHAR NOT NULL,
                 PhoneNumber NVARCHAR NOT NULL,
-                FOREIGN KEY(DeviceId) REFERENCES Device(Id)
+                
+                CONSTRAINT fk_Device
+                    FOREIGN KEY(DeviceId)
+                    REFERENCES Device(Id)
+                    ON DELETE CASCADE
             )
         """)
 
@@ -39,6 +43,8 @@ def populate():
     conn = None
     try:
         conn = sqlite3.connect('../databases/deviceservice.db')
+
+        conn.execute('PRAGMA foreign_keys = ON')
 
         conn.execute("""
             INSERT INTO Device
@@ -65,7 +71,7 @@ def populate():
                     (NULL, 'af849430-0f28-4e03-b20e-470a62266302', '+46XXXXXXXX7'),
                     (NULL, 'af849430-0f28-4e03-b20e-470a62266302', '+46XXXXXXXX8'),
                     (NULL, 'af849430-0f28-4e03-b20e-470a62266302', '+46XXXXXXXX9'),
-                    (NULL, '680ebc91-4f96-4388-98f5-8a180b4b00c7', '+46XXXXXXX10')               
+                    (NULL, '680ebc91-4f96-4388-98f5-8a180b4b00c7', '+46XXXXXXX10')
         """)
 
         conn.commit()

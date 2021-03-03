@@ -47,7 +47,7 @@ def login():
         req_password = request.form['password']
 
         with sqlite3.connect('databases/deviceservice.db') as context:
-            service = DeviceDbServiceTest(sqlite_connection=context)  # TODO: Singleton?
+            service = DeviceDbServiceTest(sqlite_connection=context)
             if req_password == service.get_device_password(device_id):
                 return redirect(url_for('home'))
             else:
