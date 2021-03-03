@@ -13,8 +13,7 @@ secrets
 !secrets/readme.txt
 
 # Databases
-databases
-!databases/readme.txt
+deviceservice.db
 
 # Other files and folders
 __pycache__

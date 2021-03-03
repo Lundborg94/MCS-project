@@ -47,10 +47,10 @@ def login():
         device_id = request.form['deviceID']
         req_password = request.form['password']
 
-        with sqlite3.connect('databases/deviceservice.db') as context:
+        with sqlite3.connect('deviceservice.db') as context:
             repository = DeviceRepositoryTest(context)
             service = LoginService(repository)
-            
+
             if req_password == service.get_user_password(device_id):
                 user = service.get_user(device_id)  # TODO: Pass the user data onto the view
 

@@ -5,7 +5,7 @@ from sqlite3 import Error
 def create_tables():
     conn = None
     try:
-        conn = sqlite3.connect('../databases/deviceservice.db')
+        conn = sqlite3.connect('deviceservice.db')
 
         # Create Device table
         conn.execute("""
@@ -42,7 +42,7 @@ def create_tables():
 def populate():
     conn = None
     try:
-        conn = sqlite3.connect('../databases/deviceservice.db')
+        conn = sqlite3.connect('deviceservice.db')
 
         conn.execute('PRAGMA foreign_keys = ON')
 
@@ -83,6 +83,10 @@ def populate():
             conn.close()
 
 
-if __name__ == '__main__':
+def main():
     create_tables()
     populate()
+
+
+if __name__ == '__main__':
+    main()
