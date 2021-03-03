@@ -5,14 +5,6 @@
 	box-sizing: border-box;
 }
 
-body {
-  background: #bdc3c7;  /* fallback for old browsers */
-  background: -webkit-linear-gradient(to right, #2c3e50, #bdc3c7);  /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(to right, #cfe7eb, #bdc3c7); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-  font-family: 'Roboto Mono', monospace;
-
- }
-
 .container {
   margin-top: 100px;
   background: rgb(240, 243, 243);
@@ -21,27 +13,6 @@ body {
   height: 300px;
   }
 
-  .container-fluid {
-  margin-top: 100px;
-  background: rgb(240, 243, 243);
-  border-radius: 5px;
-  width:300px;
-  height: 500px;
-  }
-
- .bottom {
-   text-align: center;
-   margin-top: 5rem;
-   font-size: 12px;
- }
-
- .submit {
-   text-align: center;
- }
-
- ::placeholder {
-  font-size: 15px;
- }
 
 .form-field {
   display: -webkit-box;
@@ -52,7 +23,6 @@ body {
   margin-top: 1rem;
   font-size: 15px;
 }
-
 
 input[type=text] {
   border: none
@@ -76,6 +46,16 @@ input[type=password] {
   color: rgb(37, 36, 36);
 }
 
+
+
+body {
+  background: #bdc3c7;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #2c3e50, #bdc3c7);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #cfe7eb, #bdc3c7); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  font-family: 'Roboto Mono', monospace;
+
+ }
+
  .error {
    font-size: 9px;
    margin-top: 1rem;
@@ -98,17 +78,4 @@ input[type=password] {
  .signup a:hover {
    color: rgb(140, 226, 222);
  }
-
- a {
-  text-decoration: none;
-  color:rgb(37, 36, 36)
- }
-
- a:hover {
-  color: rgb(140, 226, 222);
- }
  
-
-
-
-
