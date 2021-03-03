@@ -5,7 +5,7 @@ from sqlite3 import Error
 def create_tables():
     conn = None
     try:
-        conn = sqlite3.connect('../databases/mcsservice.db')
+        conn = sqlite3.connect('../databases/deviceservice.db')
 
         # Create Device table
         conn.execute("""
@@ -38,7 +38,7 @@ def create_tables():
 def populate():
     conn = None
     try:
-        conn = sqlite3.connect('../databases/mcsservice.db')
+        conn = sqlite3.connect('../databases/deviceservice.db')
 
         conn.execute("""
             INSERT INTO Device

@@ -16,16 +16,17 @@ class Device:
 
 
 # INTERFACES
-class DeviceDbContextInterface:
+class _DeviceDbServiceInterface:
     """
-    Database context interface
+    Device database service interface.
+    All adaptors should inherit this class.
     """
 
     def get_device_password(self, device_id: uuid):
         """Fetches the password for specified device from current context"""
         raise NotImplementedError()
 
-    def get_device(self, id: uuid):
+    def get_device(self, id: uuid) -> Device:
         """Fetches a device with the specified id from current context"""
         raise NotImplementedError()
 
@@ -39,11 +40,14 @@ class DeviceDbContextInterface:
 
 
 # ADAPTORS
-class DeviceTestContext(DeviceDbContextInterface):
+class DeviceDbServiceTest(_DeviceDbServiceInterface):
+    """
+    For testing against our sqlite db
+    """
     def __init__(self, sqlite_connection: sqlite3.Connection):
         self.__sqlite_connection = sqlite_connection
 
-    def get_device_password(self, device_id: uuid):
+    def get_device_password(self, device_id: uuid) -> str:
         query = self.__sqlite_connection.execute("SELECT Password FROM Device WHERE Id = ?", [str(device_id)])
         return query.fetchone()[0]
 

@@ -2,7 +2,7 @@ import sqlite3
 
 from flask import Flask, Response, render_template, redirect, url_for, request
 from flask_login import LoginManager, UserMixin, login_required
-from database_context import DeviceTestContext
+from mcs_db_services import DeviceDbServiceTest
 
 app = Flask(__name__)
 login_manager = LoginManager()
@@ -46,9 +46,9 @@ def login():
         device_id = request.form['deviceID']
         req_password = request.form['password']
 
-        with sqlite3.connect('databases/mcsservice.db') as conn:
-            context = DeviceTestContext(sqlite_connection=conn)  # TODO: Singleton?
-            if req_password == context.get_device_password(device_id):
+        with sqlite3.connect('databases/deviceservice.db') as context:
+            service = DeviceDbServiceTest(sqlite_connection=context)  # TODO: Singleton?
+            if req_password == service.get_device_password(device_id):
                 return redirect(url_for('home'))
             else:
                 error = 'Invalid Credentials. Please try again.'
