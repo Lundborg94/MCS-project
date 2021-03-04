@@ -2,7 +2,7 @@ import sqlite3
 import json
 
 from flask import Flask, render_template, redirect, url_for, request, session
-from mcs_services import LoginService
+from mcs_services import AccountService
 from mcs_repositories import DeviceRepositoryTest
 import re
 
@@ -22,7 +22,7 @@ def login():
         req_password = request.form['password']
 
         with sqlite3.connect('deviceservice.db') as context:
-            service = LoginService(DeviceRepositoryTest(context))
+            service = AccountService(DeviceRepositoryTest(context))
             correct_password = service.get_user_password(device_id)
 
             if req_password == correct_password:

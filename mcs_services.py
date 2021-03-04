@@ -22,7 +22,7 @@ class EmergencyContactDto:
 
 
 # SERVICES
-class LoginService:
+class AccountService:
     def __init__(self, device_repo: DeviceRepositoryInterface):
         self._device_repo = device_repo
 
