@@ -70,6 +70,10 @@ class DeviceRepositoryTest(DeviceRepositoryInterface):
         cursor = self.__context.execute('SELECT * FROM Device WHERE Id = ?', [str(id)])
 
         tup = cursor.fetchone()
+
+        if not tup:
+            return None
+
         device = Device(tup[0], tup[1], tup[2])
 
         return device
