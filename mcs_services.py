@@ -1,6 +1,6 @@
 import uuid
 
-from mcs_repositories import DeviceRepositoryInterface, EmergencyRepositoryInterface
+from mcs_repositories import DeviceRepositoryInterface, EmergencyRepositoryInterface, CumulocityRepository
 
 
 # DTOS
@@ -16,10 +16,13 @@ class UserDto:
 
 
 class AddUserDto:
-    def __init__(self, device_id: uuid, device_name, password):
+    def __init__(self, device_id: uuid, device_name, password, cumulocity_name, cumulocity_tenant_id, cumulocity_password):
         self.device_id = device_id
         self.device_name = device_name
         self.password = password
+        self.cumulocity_name = cumulocity_name
+        self.cumulocity_tenant_id = cumulocity_tenant_id
+        self.cumulocity_password = cumulocity_password
 
 
 class EmergencyContactDto:
@@ -30,12 +33,14 @@ class EmergencyContactDto:
 
 # SERVICES
 class AccountService:
-    def __init__(self, device_repo: DeviceRepositoryInterface):
+    def __init__(self, device_repo: DeviceRepositoryInterface, cumulocity_repo: CumulocityRepository):
         self._device_repo = device_repo
+        self._cumulocity_repo = cumulocity_repo
 
     def add_user(self, user: AddUserDto):
         """Adds the user to the repository."""
         self._device_repo.add_device(user.device_id, user.device_name, user.password)
+        self._cumulocity_repo.add_cumulocity(user.cumulocity_name, user.cumulocity_tenant_id, user.cumulocity_password, user.device_id)
 
     def get_user(self, device_id: uuid):
         """Returns the specified user from the repository. Returns 'None' if the user does not exist."""

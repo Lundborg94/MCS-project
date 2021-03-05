@@ -7,12 +7,28 @@ def create_tables():
     try:
         conn = sqlite3.connect('deviceservice.db')
 
+        # Create cumulocity table
+        conn.execute("""
+            CREATE TABLE Cumulocity (
+                Id INTEGER PRIMARY AUTOINCREMENT KEY NOT NULL,
+                Username NVARCHAR NOT NULL,
+                TenantId NVARCHAR NOT NULL,
+                Password NVARCHAR NOT NULL
+            )
+        """)
+
         # Create Device table
         conn.execute("""
             CREATE TABLE Device (
                 Id uuid PRIMARY KEY NOT NULL,
                 Name NVARCHAR NOT NULL,
-                Password NVARCHAR NOT NULL
+                Password NVARCHAR NOT NULL,
+                CumulocityId INTEGER NULL,
+
+                CONSTRAINT fk_Cumulocity
+                    FOREIGN KEY(CumulocityId) 
+                    REFERENCES Cumulocity(Id)
+                    ON DELETE CASCADE
             )
         """)
 
@@ -49,13 +65,13 @@ def populate():
         conn.execute("""
             INSERT INTO Device
                 VALUES
-                    ('6cc4cf69-843d-407b-9d03-2b70b2efe9c5', 'Motorcykeln', 'Äpple123'),
-                    ('64ef1aad-adc0-4a15-9e02-e752f837a0fe', 'Cykeln', 'Gurka123'),
-                    ('5d634db7-be28-4bce-986a-6426c502428e', 'Mopeden', 'Päron123'),
-                    ('cb8e0fef-62f0-4c74-8b5e-70abe923feeb', 'Teslan', 'Kaffe123'),
-                    ('3e76f96f-5bd1-49e6-85d6-8d34cb124924', 'Båten', 'Tårta123'),
-                    ('af849430-0f28-4e03-b20e-470a62266302', 'Tjänstebilen', 'Anannas123'),
-                    ('680ebc91-4f96-4388-98f5-8a180b4b00c7', 'Fritidsbilen', 'Kiwi123')
+                    ('6cc4cf69-843d-407b-9d03-2b70b2efe9c5', 'Motorcykeln', 'Äpple123', NULL),
+                    ('64ef1aad-adc0-4a15-9e02-e752f837a0fe', 'Cykeln', 'Gurka123', NULL),
+                    ('5d634db7-be28-4bce-986a-6426c502428e', 'Mopeden', 'Päron123', NULL),
+                    ('cb8e0fef-62f0-4c74-8b5e-70abe923feeb', 'Teslan', 'Kaffe123', NULL),
+                    ('3e76f96f-5bd1-49e6-85d6-8d34cb124924', 'Båten', 'Tårta123', NULL),
+                    ('af849430-0f28-4e03-b20e-470a62266302', 'Tjänstebilen', 'Anannas123', NULL),
+                    ('680ebc91-4f96-4388-98f5-8a180b4b00c7', 'Fritidsbilen', 'Kiwi123', NULL)
         """)
 
         conn.execute("""

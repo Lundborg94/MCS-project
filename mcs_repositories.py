@@ -79,7 +79,7 @@ class DeviceRepositoryTest(DeviceRepositoryInterface):
         return device
 
     def add_device(self, id: uuid, name: str, password: str):
-        self.__context.execute('INSERT INTO Device VALUES (?, ?, ?)', [str(id), name, password])
+        self.__context.execute('INSERT INTO Device VALUES (?, ?, ?, NULL)', [str(id), name, password])
         self.__context.commit()
 
     def remove_device(self, id: uuid):
@@ -110,4 +110,19 @@ class EmergencyRepositoryTest(EmergencyRepositoryInterface):
 
     def remove_emergency_contact(self, id: int):
         self.__context.execute('DELETE FROM EmergencyContact WHERE Id = ?', [id])
+        self.__context.commit()
+
+
+class CumulocityRepository:
+
+    def __init__(self, sqlite_connection: sqlite3.Connection):
+        self.__context = sqlite_connection
+        self.__context.execute('PRAGMA foreign_keys = ON')  # For cascade deletion and restrictions
+
+    def add_cumulocity(self, cumulocity_username, cumulocity_tenant_id, cumulocity_password, user_id):
+        self.__context.execute('INSERT INTO Cumulocity VALUES (null, ?, ?, ?)', [cumulocity_username, cumulocity_tenant_id, cumulocity_password])
+        self.__context.commit()
+        cursor = self.__context.execute('SELECT Id FROM Cumulocity WHERE TenantId = ? AND Password = ?', [cumulocity_tenant_id, cumulocity_password])
+        cumulocity_id, = cursor.fetchone()
+        self.__context.execute('UPDATE Device SET CumulocityId = ? WHERE Id = ?', [cumulocity_id, user_id])
         self.__context.commit()
