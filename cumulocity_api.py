@@ -9,12 +9,12 @@ def get_configurations():
     return json.loads(config)['cumulocity_config']
 
 
-def get_location():
+def get_location(username, tenant_id, password):
     config = get_configurations()
 
-    tenant_id = config['tenant_id']
-    username = config['username']
-    password = config['password']
+    tenant_id = tenant_id
+    username = username
+    password = password
 
     payload = {'fragmentType': 'c8y_Position'}
     resp = requests.get('https://{}.eu-latest.cumulocity.com/inventory/managedObjects'.format(tenant_id),

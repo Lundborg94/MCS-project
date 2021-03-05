@@ -1,11 +1,12 @@
 import sqlite3
 import json
-import uuid
+import threading
+import time
+import re
 
 from flask import Flask, render_template, redirect, url_for, request, session
-from mcs_services import AccountService, AddUserDto
-from mcs_repositories import DeviceRepositoryTest, CumulocityRepository
-import re
+from mcs_services import AccountService, AddUserDto, LocationService
+from mcs_repositories import DeviceRepositoryTest, CumulocityRepository, LocationRepository
 
 app = Flask(__name__)
 
@@ -23,7 +24,7 @@ def login():
         req_password = request.form['password']
 
         with sqlite3.connect('deviceservice.db') as context:
-            service = AccountService(DeviceRepositoryTest(context))
+            service = AccountService(DeviceRepositoryTest(context), CumulocityRepository(context))
             correct_password = service.get_user_password(device_id)
 
             if req_password == correct_password:
@@ -83,6 +84,42 @@ def home():
     return render_template('home.html')
 
 
+@app.route('/location/<device_id>')
+def get_current_location(device_id):
+    with sqlite3.connect('deviceservice.db') as context:
+        service = LocationService(LocationRepository(context), CumulocityRepository(context))
+        location = service.get_realtime_location(device_id)
+        print(location)
+
+    return location
+
+
+def service_worker():
+    i = 0
+    while True:
+        time.sleep(3)
+        with sqlite3.connect('deviceservice.db') as context:
+            service = LocationService(LocationRepository(context), CumulocityRepository(context))
+            active_devices = service.get_active_cumulocity_devices()
+            for ad in active_devices:
+                realtime_location = service.get_realtime_location(ad[0])
+                service.add_location(ad[0], realtime_location['lat'], realtime_location['lng'], realtime_location['alt'])
+                print("[{}]: {}".format(i, realtime_location))
+        i += 1
+
+
+@app.route('/location/getlastknown/<device_id>')
+def get_last_known_location(device_id):
+    with sqlite3.connect('deviceservice.db') as context:
+        service = LocationService(LocationRepository(context), CumulocityRepository(context))
+        last_known_location = service.get_latest_location(device_id)
+
+        if not last_known_location:
+            return "No location logs exists for this device.", 404
+
+        return last_known_location
+
+
 def is_user_in_session():
     return 'user' in session
 
@@ -95,7 +132,10 @@ def add_user_to_session(user):
         }
     }
 
+x = threading.Thread(target=service_worker)
+x.start()
 
 if __name__ == '__main__':
+
     app.config["SECRET_KEY"] = "ITSASECRET"
     app.run(port=5000, debug=True)

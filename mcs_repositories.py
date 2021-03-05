@@ -1,5 +1,7 @@
 import sqlite3
 import uuid
+import datetime
+import cumulocity_api
 
 
 # ENTITIES
@@ -119,10 +121,75 @@ class CumulocityRepository:
         self.__context = sqlite_connection
         self.__context.execute('PRAGMA foreign_keys = ON')  # For cascade deletion and restrictions
 
-    def add_cumulocity(self, cumulocity_username, cumulocity_tenant_id, cumulocity_password, user_id):
-        self.__context.execute('INSERT INTO Cumulocity VALUES (null, ?, ?, ?)', [cumulocity_username, cumulocity_tenant_id, cumulocity_password])
+    def get_active_cumulocity_device(self):
+        cursor = self.__context.execute("""
+            SELECT
+                d.Id,
+                c.Username,
+                c.TenantId,
+                c.Password
+            FROM Device d
+            JOIN Cumulocity c ON d.CumulocityId = c.Id
+            WHERE c.Active == 1
+        """)
+
+        return cursor.fetchall()
+
+    def add_cumulocity(self, cumulocity_username, cumulocity_tenant_id, cumulocity_password, user_id, active):
+        self.__context.execute('INSERT INTO Cumulocity VALUES (null, ?, ?, ?, ?)', [cumulocity_username, cumulocity_tenant_id, cumulocity_password, active])
         self.__context.commit()
         cursor = self.__context.execute('SELECT Id FROM Cumulocity WHERE TenantId = ? AND Password = ?', [cumulocity_tenant_id, cumulocity_password])
         cumulocity_id, = cursor.fetchone()
         self.__context.execute('UPDATE Device SET CumulocityId = ? WHERE Id = ?', [cumulocity_id, user_id])
         self.__context.commit()
+
+    def get_realtime_location(self, device_id):
+        context = self.__context.execute("""
+            SELECT
+                c.Username,
+                c.TenantId,
+                c.Password
+            FROM Device d
+            JOIN Cumulocity c on d.CumulocityId = c.Id
+            WHERE d.Id = ?
+        """, [str(device_id)])
+
+        username, tenant_id, password = context.fetchone()
+
+        return cumulocity_api.get_location(username, tenant_id, password)
+
+
+class LocationRepository:
+
+    def __init__(self, sqlite_connection: sqlite3.Connection):
+        self.__context = sqlite_connection
+        self.__context.execute('PRAGMA foreign_keys = ON')
+
+    def add_location(self, device_id, latitude, longitude, altitude):
+        self.__context.execute('INSERT INTO Position VALUES (NULL, ?, ?, ?, ?, ?)', [str(device_id), latitude, longitude, altitude, datetime.datetime.utcnow()])
+        self.__context.commit()
+
+    def get_latest_location(self, device_id):
+        cursor = self.__context.execute("""
+            SELECT
+                p.Latitude,
+                p.Longitude,
+                p.Altitude,
+                p.CreatedDateTime
+            FROM Position p
+            WHERE p.DeviceId = ?
+            ORDER BY p.CreatedDateTime DESC
+            LIMIT 1
+        """, [str(device_id)])
+
+        tup = cursor.fetchone()
+
+        if not tup:
+            return None
+
+        return {
+            "latitude": tup[0],
+            "longitude": tup[1],
+            "altitude": tup[2],
+            "date_time": tup[3]
+        }

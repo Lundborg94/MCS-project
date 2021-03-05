@@ -1,6 +1,6 @@
 import uuid
 
-from mcs_repositories import DeviceRepositoryInterface, EmergencyRepositoryInterface, CumulocityRepository
+from mcs_repositories import DeviceRepositoryInterface, EmergencyRepositoryInterface, CumulocityRepository, LocationRepository
 
 
 # DTOS
@@ -40,7 +40,7 @@ class AccountService:
     def add_user(self, user: AddUserDto):
         """Adds the user to the repository."""
         self._device_repo.add_device(user.device_id, user.device_name, user.password)
-        self._cumulocity_repo.add_cumulocity(user.cumulocity_name, user.cumulocity_tenant_id, user.cumulocity_password, user.device_id)
+        self._cumulocity_repo.add_cumulocity(user.cumulocity_name, user.cumulocity_tenant_id, user.cumulocity_password, user.device_id, False)
 
     def get_user(self, device_id: uuid):
         """Returns the specified user from the repository. Returns 'None' if the user does not exist."""
@@ -52,7 +52,10 @@ class AccountService:
 
     def get_user_password(self, device_id: uuid):
         """Returns the password of the specified user."""
-        return self._device_repo.get_device(device_id).password
+        device = self._device_repo.get_device(device_id)
+        if not device:
+            return None
+        return device.password
 
 
 class DashboardService:
@@ -63,3 +66,21 @@ class DashboardService:
         """Returns all ice contacts for the current device/user"""
         ecs = self._ice_repo.get_emergency_contacts_for_device(device_id)
         return [EmergencyContactDto(ec.id, ec.phone_number) for ec in ecs]
+
+
+class LocationService:
+    def __init__(self, location_repo: LocationRepository, cumulocity_repo: CumulocityRepository):
+        self._location_repo = location_repo
+        self._cumulocity_repo = cumulocity_repo
+
+    def add_location(self, device_id, latitude, longitude, altitude):
+        self._location_repo.add_location(device_id, latitude, longitude, altitude)
+
+    def get_latest_location(self, device_id):
+        return self._location_repo.get_latest_location(device_id)
+
+    def get_realtime_location(self, device_id):
+        return self._cumulocity_repo.get_realtime_location(device_id)
+
+    def get_active_cumulocity_devices(self):
+        return self._cumulocity_repo.get_active_cumulocity_device()
