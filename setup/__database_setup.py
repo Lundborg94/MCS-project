@@ -10,7 +10,7 @@ def create_tables():
         # Create cumulocity table
         conn.execute("""
             CREATE TABLE Cumulocity (
-                Id INTEGER PRIMARY AUTOINCREMENT KEY NOT NULL,
+                Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 Username NVARCHAR NOT NULL,
                 TenantId NVARCHAR NOT NULL,
                 Password NVARCHAR NOT NULL
