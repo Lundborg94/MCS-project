@@ -84,3 +84,6 @@ class LocationService:
 
     def get_active_cumulocity_devices(self):
         return self._cumulocity_repo.get_active_cumulocity_device()
+
+    def set_state(self, device_id, state: bool):
+        self._cumulocity_repo.set_state(device_id, state)

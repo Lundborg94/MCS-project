@@ -143,6 +143,12 @@ class CumulocityRepository:
         self.__context.execute('UPDATE Device SET CumulocityId = ? WHERE Id = ?', [cumulocity_id, user_id])
         self.__context.commit()
 
+    def set_state(self, device_id, state: bool):
+        cursor = self.__context.execute('SELECT CumulocityId FROM Device WHERE Id = ?', [str(device_id)])
+        c_id, = cursor.fetchone()
+        self.__context.execute('UPDATE Cumulocity SET Active = ? WHERE Id = ?', [state, c_id])
+        self.__context.commit()
+
     def get_realtime_location(self, device_id):
         context = self.__context.execute("""
             SELECT
