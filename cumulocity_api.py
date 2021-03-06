@@ -10,19 +10,20 @@ def get_configurations():
 
 
 def get_location(username, tenant_id, password):
-    config = get_configurations()
-
     tenant_id = tenant_id
     username = username
     password = password
 
     payload = {'fragmentType': 'c8y_Position'}
-    resp = requests.get('https://{}.eu-latest.cumulocity.com/inventory/managedObjects'.format(tenant_id),
-                     auth=(username, password), params=payload)
+    resp = requests.get(f'https://{tenant_id}.eu-latest.cumulocity.com/inventory/managedObjects',
+                        auth=(username, password), params=payload)
+
+    if resp.status_code != 200:
+        return None, resp.status_code
 
     response = resp.json()
 
-    managedObjects = response['managedObjects'][0]
-    position = managedObjects['c8y_Position']
+    managed_objects = response['managedObjects'][0]
+    position = managed_objects['c8y_Position']
 
-    return position
+    return position, resp.status_code

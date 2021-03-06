@@ -130,7 +130,13 @@ def activate_cumulocity(state):
     if not is_user_in_session():
         return "Unauthorized", 401
 
-    bit = True if state == "on" else "off"
+    bit = None
+    if state == "on":
+        bit = True
+    elif state == "off":
+        bit = False
+    else:
+        return "Input was not valid", 400
 
     with sqlite3.connect('deviceservice.db') as context:
         service = LocationService(LocationRepository(context), CumulocityRepository(context))
@@ -205,9 +211,13 @@ def realtime_device_location_polling():
             service = LocationService(LocationRepository(context), CumulocityRepository(context))
             active_devices = service.get_active_cumulocity_devices()
             for ad in active_devices:
-                realtime_location = service.get_realtime_location(ad[0])
-                service.add_location(ad[0], realtime_location['lat'], realtime_location['lng'], realtime_location['alt'])
-                print("[{}]: {}".format(i, realtime_location))
+                location, status_code = service.get_realtime_location(ad[0])
+                if not location:
+                    print("[{}]: Something went wrong (status code: {})".format(i, status_code))
+                    continue
+
+                service.add_location(ad[0], location['lat'], location['lng'], location['alt'])
+                print("[{}]: {}".format(i, location))
         i += 1
 
 
