@@ -65,7 +65,22 @@ class DashboardService:
     def get_ice_contacts_for_device(self, device_id):
         """Returns all ice contacts for the current device/user"""
         ecs = self._ice_repo.get_emergency_contacts_for_device(device_id)
-        return [EmergencyContactDto(ec.id, ec.phone_number) for ec in ecs]
+        return [{
+            "id": ec.id,
+            "device_id": ec.device_id,
+            "phone_number": ec.phone_number
+        } for ec in ecs]
+
+    def add_ice_contact_for_device(self, device_id, phone_number):
+        """Adds emergency contact for device and returns the id of the created emergency contact"""
+        return self._ice_repo.add_emergency_contact(device_id, phone_number)
+
+    def remove_ice_contact_for_device(self, device_id, ec_id) -> bool:
+        if self._ice_repo.device_has_contact_id(device_id, ec_id):
+            self._ice_repo.remove_emergency_contact(ec_id)
+            return True
+
+        return False
 
 
 class LocationService:

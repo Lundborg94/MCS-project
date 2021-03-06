@@ -45,16 +45,21 @@ class EmergencyRepositoryInterface:
         """Fetches an emergency contact from the current context"""
         raise NotImplementedError()
 
-    def get_emergency_contacts_for_device(self, device_id: uuid):
+    def get_emergency_contacts_for_device(self, device_id: uuid) -> list[EmergencyContact]:
         """Fetches emergency contacts for specified device"""
         raise NotImplementedError()
 
-    def add_emergency_contact(self, device_id: uuid, phone_number: str):
-        """Adds an emergency contact to the current context"""
+    def add_emergency_contact(self, device_id: uuid, phone_number: str) -> int:
+        """Adds an emergency contact to the current context. Returns the assigned contact id."""
         raise NotImplementedError()
 
     def remove_emergency_contact(self, id: int):
         """Removes an emergency contact from the current context"""
+        raise NotImplementedError()
+
+    def device_has_contact_id(self, device_id, ec_id):
+        """Checks if the specified emergency contact exists for the specified device. Return true if it exists otherwise
+         false"""
         raise NotImplementedError()
 
 
@@ -107,12 +112,28 @@ class EmergencyRepositoryTest(EmergencyRepositoryInterface):
         return [EmergencyContact(tup[0], tup[1], tup[2]) for tup in tups]
 
     def add_emergency_contact(self, device_id: uuid, phone_number: str):
-        self.__context.execute('INSERT INTO EmergencyContact VALUES (?, ?, ?)', [None, str(device_id), phone_number])
+        cursor = self.__context.execute('INSERT INTO EmergencyContact VALUES (?, ?, ?)',
+                                        [None, str(device_id), phone_number])
+        ec_id = cursor.lastrowid
         self.__context.commit()
+        return ec_id
 
     def remove_emergency_contact(self, id: int):
         self.__context.execute('DELETE FROM EmergencyContact WHERE Id = ?', [id])
         self.__context.commit()
+
+    def device_has_contact_id(self, device_id, ec_id):
+        cursor = self.__context.execute("""
+            SELECT 1
+            FROM EmergencyContact ec
+            JOIN Device d ON ec.DeviceId = d.Id
+            WHERE d.Id = ? AND ec.Id = ?
+        """, [str(device_id), str(ec_id)])
+
+        if not cursor.fetchone():
+            return False
+
+        return True
 
 
 class CumulocityRepository:
@@ -136,9 +157,11 @@ class CumulocityRepository:
         return cursor.fetchall()
 
     def add_cumulocity(self, cumulocity_username, cumulocity_tenant_id, cumulocity_password, user_id, active):
-        self.__context.execute('INSERT INTO Cumulocity VALUES (null, ?, ?, ?, ?)', [cumulocity_username, cumulocity_tenant_id, cumulocity_password, active])
+        self.__context.execute('INSERT INTO Cumulocity VALUES (null, ?, ?, ?, ?)',
+                               [cumulocity_username, cumulocity_tenant_id, cumulocity_password, active])
         self.__context.commit()
-        cursor = self.__context.execute('SELECT Id FROM Cumulocity WHERE TenantId = ? AND Password = ?', [cumulocity_tenant_id, cumulocity_password])
+        cursor = self.__context.execute('SELECT Id FROM Cumulocity WHERE TenantId = ? AND Password = ?',
+                                        [cumulocity_tenant_id, cumulocity_password])
         cumulocity_id, = cursor.fetchone()
         self.__context.execute('UPDATE Device SET CumulocityId = ? WHERE Id = ?', [cumulocity_id, user_id])
         self.__context.commit()
@@ -172,7 +195,8 @@ class LocationRepository:
         self.__context.execute('PRAGMA foreign_keys = ON')
 
     def add_location(self, device_id, latitude, longitude, altitude):
-        self.__context.execute('INSERT INTO Position VALUES (NULL, ?, ?, ?, ?, ?)', [str(device_id), latitude, longitude, altitude, datetime.datetime.utcnow()])
+        self.__context.execute('INSERT INTO Position VALUES (NULL, ?, ?, ?, ?, ?)',
+                               [str(device_id), latitude, longitude, altitude, datetime.datetime.utcnow()])
         self.__context.commit()
 
     def get_latest_location(self, device_id):

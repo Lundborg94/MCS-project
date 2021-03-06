@@ -4,11 +4,15 @@ import threading
 import time
 import re
 
-from flask import Flask, render_template, redirect, url_for, request, session
-from mcs_services import AccountService, AddUserDto, LocationService
-from mcs_repositories import DeviceRepositoryTest, CumulocityRepository, LocationRepository
+from flask import Flask, render_template, redirect, url_for, request, session, make_response, jsonify
+from flask.sessions import SecureCookieSessionInterface
+from mcs_services import AccountService, AddUserDto, LocationService, DashboardService
+from mcs_repositories import DeviceRepositoryTest, CumulocityRepository, LocationRepository, EmergencyRepositoryTest
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = "ITSASECRET"
+
+session_serializer = SecureCookieSessionInterface().get_signing_serializer(app)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -32,7 +36,15 @@ def login():
 
                 add_user_to_session(user)
 
-                return redirect(url_for('home'))
+                session_cookie = session_serializer.dumps(dict(session))
+                print(session_cookie)
+
+                resp = make_response(redirect(url_for('home')))
+
+                # Client code can access cookies
+                resp.set_cookie('client_session', session_cookie)
+
+                return resp
             else:
                 error = 'Invalid Credentials. Please try again.'
 
@@ -127,6 +139,50 @@ def activate_cumulocity(state):
         return "State is now {}".format(state)
 
 
+@app.route('/api/device/ec')
+def get_device_emergency_contacts():
+
+    if not is_user_in_session():
+        return "Unauthorized", 401
+
+    with sqlite3.connect('deviceservice.db') as context:
+        service = DashboardService(EmergencyRepositoryTest(context))
+        emergency_contacts = service.get_ice_contacts_for_device(session["user"]["device"]["device_id"])
+
+        return jsonify(emergency_contacts)
+
+
+@app.route('/api/device/ec/<ec_id>', methods=['DELETE'])
+def remove_device_emergency_contact(ec_id):
+
+    if not is_user_in_session():
+        return "Unauthorized", 401
+
+    with sqlite3.connect('deviceservice.db') as context:
+        service = DashboardService(EmergencyRepositoryTest(context))
+
+        if service.remove_ice_contact_for_device(session["user"]["device"]["device_id"], ec_id):
+            return "Successfully removed emergency contact.", 200
+
+        return "The emergency contact does not exist for current device.", 404
+
+
+@app.route('/api/device/ec', methods=['POST'])
+def add_device_emergency_contact():
+
+    if not is_user_in_session():
+        return "Unauthorized", 401
+
+    json_message = request.json
+
+    with sqlite3.connect('deviceservice.db') as context:
+        service = DashboardService(EmergencyRepositoryTest(context))
+
+        ec_id = service.add_ice_contact_for_device(session["user"]["device"]["device_id"], json_message["phone_number"])
+
+        return str(ec_id), 200
+
+
 def is_user_in_session():
     return 'user' in session
 
@@ -161,5 +217,4 @@ if __name__ == '__main__':
     x.start()
 
     # Start app
-    app.config["SECRET_KEY"] = "ITSASECRET"
     app.run(port=5000, debug=False)
