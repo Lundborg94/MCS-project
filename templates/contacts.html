@@ -9,7 +9,7 @@
         <script src="{{ url_for('static', filename='contacts.js') }}" defer></script>
         
         <!--Bootstrap-->
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
@@ -34,25 +34,32 @@
                       <input id="phoneNumberInput" type="tel" class="form-control" aria-describedby="emailHelp" placeholder="+46 XX-XXX XX XX">
                       <small id="emailHelp" class="form-text text-muted">We'll send a text message to the recepient in case something happens</small>
                     </div>
-                    <button type="button" class="btn btn-primary" onclick="onSaveButtonClicked()">Save</button>
+                    <button id="saveButton" type="button" class="btn btn-success" onclick="onSaveButtonClicked()">
+                        <span id="saveText">Save</span>
+                        <div id="saveSpinner" class="spinner-border spinner-border-sm text-light" role="status" hidden>
+                            <span class="sr-only">Saving...</span>
+                        </div>
+                    </button>
                   </form>
             </div>
         </div>
 
         <ul id="contact-list" class="list-group">
             <!--REMOVED ON PAGE LOAD-->
-            <li id="listItemBlueprint" class="list-group-item ">
+            <li id="listItemBlueprint" class="list-group-item">
                 <div class="d-flex justify-content-between">
                     <p class="text-gray-dark phone-number">+46XXXXXXXX0</p>
                     <div>
                         <button type="button" class="btn btn-outline-danger remove">
                             <i class="fa fa-trash"></i>
+                            <div class="spinner-border spinner-border-sm text-danger" role="status" hidden>
+                                <span class="sr-only">Removing...</span>
+                            </div>
                         </button>
                     </div>
                 </div>
             </li>
         </ul>
 
-        
     </body>
 </html>

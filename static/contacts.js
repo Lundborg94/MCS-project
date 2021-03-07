@@ -52,9 +52,32 @@ const addToList = (function () {
 
         const removeButton = listItem.getElementsByClassName("remove")[0];
 
-        removeButton.addEventListener("click", event => {
+        removeButton.addEventListener("click", async event => {
             event.preventDefault();
-            onRemove(event);
+
+            const button = document.getElementById(idAttribute).getElementsByTagName("button")[0];
+            const iTag = button.getElementsByTagName("i")[0];
+            const spinner = button.getElementsByTagName("div")[0];
+
+            // Indicate the user that the request is loading
+            button.disabled = true;
+            iTag.hidden = true;
+            spinner.hidden = false;
+
+            await sleep(500);
+
+            try {
+                await onRemove(event);
+            }
+            catch (e) {
+                throw e;
+            }
+            finally {
+                // Indicate the user that the request has done loading
+                iTag.hidden = false;
+                spinner.hidden = true;
+                button.disabled = false;
+            }
         });
 
         const phoneNumberText = listItem.getElementsByClassName("phone-number")[0];
@@ -95,12 +118,35 @@ async function deleteEmergencyContact(id) {
 }
 
 async function onSaveButtonClicked() {
+    const saveButton = document.getElementById("saveButton");
+    const saveText = document.getElementById("saveText");
+    const spinner = document.getElementById("saveSpinner");
+
     const phoneNumberInput = document.getElementById("phoneNumberInput");
     const phoneNumber = phoneNumberInput.value;
     
-    const response = await addEmergencyContact({
-        phone_number: phoneNumber
-    });
+    saveButton.disabled = true;
+    saveText.innerHTML = "Saving";
+    spinner.hidden = false;
+
+    let response = null;
+
+    try {
+        await sleep(500);
+
+        response = await addEmergencyContact({
+            phone_number: phoneNumber
+        });
+    }
+    catch (e) {
+        // TODO: Error message
+        return;
+    }
+    finally {
+        saveText.innerHTML = "Save";
+        spinner.hidden = true;
+        saveButton.disabled = false;
+    }
 
     if (response.status != 200) {
         // TODO: Error message
