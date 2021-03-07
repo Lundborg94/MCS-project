@@ -19,53 +19,54 @@
 
     </head>
     <body>
-        <h1>Emergency Contacts</h1>
-        
-        <p>
-            <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#addContactPanel" aria-expanded="false" aria-controls="addContactPanel">
-                Add Contact
-            </button>
-        </p>
-        <div class="collapse" id="addContactPanel">
-            <div class="card card-body">
-                <form>
-                    <div class="form-group">
-                      <label for="phoneNumberInput">Phone Number</label>
-                      <input id="phoneNumberInput" type="tel" class="form-control" aria-describedby="emailHelp" placeholder="+46 XX-XXX XX XX">
-                      <small id="emailHelp" class="form-text text-muted">We'll send a text message to the recepient in case something happens</small>
-                    </div>
-                    <button id="saveButton" type="button" class="btn btn-success" onclick="onSaveButtonClicked()">
-                        <span id="saveText">Save</span>
-                        <div id="saveSpinner" class="spinner-border spinner-border-sm text-light" role="status" hidden>
-                            <span class="sr-only">Saving...</span>
+        <div class="container">
+            <h2>Emergency Contacts</h1>
+            <p style="text-align: right;">
+                <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#addContactPanel" aria-expanded="false" aria-controls="addContactPanel">
+                    <i class="fa fa-user-plus"></i>
+                </button>
+            </p>
+            <div class="collapse" id="addContactPanel">
+                <div class="card card-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="phoneNumberInput">Phone Number</label>
+                            <input id="phoneNumberInput" type="tel" class="form-control" aria-describedby="emailHelp" placeholder="+46 XX-XXX XX XX">
+                            <small id="emailHelp" class="form-text text-muted">We'll send a text message to the recepient in case something happens</small>
                         </div>
-                    </button>
-                  </form>
-            </div>
-        </div>
-
-        <div class="collapse" id="statusCollapse">
-            <div id="statusAlert" class="alert" role="alert">
-                This placeholder text alerts the user about something
-            </div>
-        </div>
-
-        <ul id="contact-list" class="list-group">
-            <!--REMOVED ON PAGE LOAD-->
-            <li id="listItemBlueprint" class="list-group-item">
-                <div class="d-flex justify-content-between">
-                    <p class="text-gray-dark phone-number">+46XXXXXXXX0</p>
-                    <div>
-                        <button type="button" class="btn btn-outline-danger remove">
-                            <i class="fa fa-trash"></i>
-                            <div class="spinner-border spinner-border-sm text-danger" role="status" hidden>
-                                <span class="sr-only">Removing...</span>
+                        <button id="saveButton" type="button" class="btn btn-success" onclick="onSaveButtonClicked()">
+                            <span id="saveText">Save</span>
+                            <div id="saveSpinner" class="spinner-border spinner-border-sm text-light" role="status" hidden>
+                                <span class="sr-only">Saving...</span>
                             </div>
                         </button>
-                    </div>
+                    </form>
                 </div>
-            </li>
-        </ul>
+            </div>
 
+            <div class="collapse" id="statusCollapse">
+                <div id="statusAlert" class="alert" role="alert">
+                    This placeholder text alerts the user about something
+                </div>
+            </div>
+
+            <ul id="contact-list" class="list-group">
+                <!--REMOVED ON PAGE LOAD-->
+                <li id="listItemBlueprint" class="list-group-item">
+                    <div class="d-flex justify-content-between">
+                        <p class="text-gray-dark phone-number">+46XXXXXXXX0</p>
+                        <div>
+                            <button type="button" class="btn btn-outline-danger remove">
+                                <i class="fa fa-trash"></i>
+                                <div class="spinner-border spinner-border-sm text-danger" role="status" hidden>
+                                    <span class="sr-only">Removing...</span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    
     </body>
 </html>
