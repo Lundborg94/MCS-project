@@ -1,3 +1,4 @@
+const originBaseUrl = window.location.origin;
 const serverSession = "session=" + getSession("client_session").value;
 
 // Load the entire list
@@ -6,7 +7,6 @@ const serverSession = "session=" + getSession("client_session").value;
     const emergencyContacts = await getEmergencyContacts();
     
     if (emergencyContacts.length == 0) {
-        // TODO: Add a nice "No contacts" alert
         showStatusAlert(
             AlertType.PRIMARY, 
             "No emergency contacts are registered for your device.", 
@@ -65,10 +65,9 @@ function createOnRemoveButtonEventHandler(ecId) {
     }    
 }
 
-const addToList = (function () {
-    // Constructs the addToList function.
-    // Clones the placeholder list item from DOM and then deletes it.
+const addToList = (function () { // Note: this function is constructed
 
+    // Clone the placeholder list item from DOM and then delete it.
     const contactList = document.getElementById("contact-list");
 
     const li = document.getElementById("listItemBlueprint");
@@ -124,7 +123,7 @@ const addToList = (function () {
 })();
 
 async function getEmergencyContacts() {
-    return fetch('http://127.0.0.1:5000/api/device/ec', {
+    return fetch(`${originBaseUrl}/api/device/ec`, {
         method: "GET",
         headers: {
             Cookie: serverSession
@@ -133,7 +132,7 @@ async function getEmergencyContacts() {
 }
 
 async function addEmergencyContact(ec) {
-    return fetch("http://127.0.0.1:5000/api/device/ec", {
+    return fetch(`${originBaseUrl}/api/device/ec`, {
         method: "POST",
         headers: {
             Cookie: serverSession,
@@ -144,7 +143,7 @@ async function addEmergencyContact(ec) {
 }
 
 async function deleteEmergencyContact(id) {
-    return response = fetch("http://127.0.0.1:5000/api/device/ec/" + id, {
+    return response = fetch(`${originBaseUrl}/api/device/ec/${id}`, {
         method: "DELETE",
         headers: {
             Cookie: serverSession
