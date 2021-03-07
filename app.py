@@ -189,6 +189,15 @@ def add_device_emergency_contact():
         return str(ec_id), 200
 
 
+@app.route('/contacts')
+def contacts():
+
+    if not is_user_in_session():
+        return redirect(url_for('login'))
+
+    return render_template('contacts.html')
+
+
 def is_user_in_session():
     return 'user' in session
 
