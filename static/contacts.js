@@ -7,27 +7,63 @@ const serverSession = "session=" + getSession("client_session").value;
     
     if (emergencyContacts.length == 0) {
         // TODO: Add a nice "No contacts" alert
+        showStatusAlert(
+            AlertType.PRIMARY, 
+            "No emergency contacts are registered for your device.", 
+            NaN); // <- Persist
     }
 
     for (let i = 0; i < emergencyContacts.length; i++) {
         
         const ice = emergencyContacts[i];
 
-        const onRemoveButtonClicked = async event => {
-            const response = await deleteEmergencyContact(ice.id);
-
-            if (response.status != 200) {
-                console.log("Something went wrong during the request");
-                return;
-            }
-
-            document.getElementById("eid-" + ice.id).remove();
-        };
+        const onRemoveButtonClicked = createOnRemoveButtonEventHandler(ice.id);
 
         // Create list item and add to DOM
         addToList("eid-" + ice.id, ice.phone_number, onRemoveButtonClicked);
     }
 })();
+
+// Create an event handler unique to the list item
+function createOnRemoveButtonEventHandler(ecId) {
+    return async event => {
+        event.preventDefault();
+
+        let response = null;
+
+            try {
+                response = await deleteEmergencyContact(ecId);
+            }
+            catch (e) {
+                showStatusAlert(
+                    AlertType.DANGER,
+                    `An unknown error ocurred: ${e}`,
+                    10000
+                );
+                return;
+            }
+
+            if (response.status != 200) {
+
+                if (response.status == 401) {
+                    showStatusAlert(
+                        AlertType.WARNING,
+                        "Your session token has expired. Please refresh the page to login.",
+                        10000);
+                    return;
+                }
+
+                showStatusAlert(
+                    AlertType.DANGER, 
+                    `Something happened during the request. Server responded with ${response.status}.`, 
+                    10000);
+
+                return;
+            }
+
+            document.getElementById("eid-" + ecId).remove();
+    }    
+}
 
 const addToList = (function () {
     // Constructs the addToList function.
@@ -97,7 +133,6 @@ async function getEmergencyContacts() {
 }
 
 async function addEmergencyContact(ec) {
-    console.log(JSON.stringify(ec));
     return fetch("http://127.0.0.1:5000/api/device/ec", {
         method: "POST",
         headers: {
@@ -118,6 +153,7 @@ async function deleteEmergencyContact(id) {
 }
 
 async function onSaveButtonClicked() {
+    // Button components
     const saveButton = document.getElementById("saveButton");
     const saveText = document.getElementById("saveText");
     const spinner = document.getElementById("saveSpinner");
@@ -139,35 +175,92 @@ async function onSaveButtonClicked() {
         });
     }
     catch (e) {
-        // TODO: Error message
+        showStatusAlert(
+            AlertType.DANGER,
+            `An unknown error ocurred: ${e}`,
+            10000
+        );
         return;
     }
     finally {
         saveText.innerHTML = "Save";
         spinner.hidden = true;
         saveButton.disabled = false;
+
+        collapseAddContactPanel();
     }
 
     if (response.status != 200) {
-        // TODO: Error message
+        
+        if (response.status == 401) {
+            showStatusAlert(
+                AlertType.WARNING,
+                "Your session token has expired. Please refresh the page to login.",
+                10000);
+            return;
+        }
+
+        showStatusAlert(
+            AlertType.DANGER, 
+            `Something happened during the request. Server responded with ${response.status}.`, 
+            10000);
         return;
     }
 
     const ecId = await response.text();
 
-    addToList("eid-" + ecId, phoneNumber, async _ => {
-        const r = await deleteEmergencyContact(ecId);
+    const onRemoveButtonClicked = createOnRemoveButtonEventHandler(ecId);
 
-        if (r.status != 200) {
-            // TODO: Error message
-            return;
-        }
+    addToList("eid-" + ecId, phoneNumber, onRemoveButtonClicked);
 
-        const listItem = document.getElementById("eid-" + ecId);
-        listItem.remove();
-    });
+    showStatusAlert(AlertType.SUCCESS, "The recepient was successfully added to your contact list!", 5000);
 }
 
 async function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+async function showStatusAlert(clazz, message, duration) {
+    const statusAlert = document.getElementById("statusAlert");
+    
+    // Remove existing bootrap classes
+    statusAlert.classList.remove(AlertType.PRIMARY);
+    statusAlert.classList.remove(AlertType.SECONDARY);
+    statusAlert.classList.remove(AlertType.SUCCESS);
+    statusAlert.classList.remove(AlertType.DANGER);
+    statusAlert.classList.remove(AlertType.WARNING);
+    statusAlert.classList.remove(AlertType.INFO);
+    statusAlert.classList.remove(AlertType.LIGHT);
+    statusAlert.classList.remove(AlertType.DARK);
+
+    // Remove existing text
+    statusAlert.innerHTML = "";
+
+    // Apply new
+    statusAlert.classList.add(clazz);
+    statusAlert.innerHTML = message;
+
+    // Show
+    $("#statusCollapse").collapse("show");
+
+    // Wait the specified duration before the alert disappears
+    await sleep(duration);
+
+    // Hide
+    $("#statusCollapse").collapse("hide");
+}
+
+function collapseAddContactPanel() {
+    $("#addContactPanel").collapse("hide")
+}
+
+const AlertType = class {
+    static PRIMARY = "alert-primary";
+    static SECONDARY = "alert-secondary";
+    static SUCCESS = "alert-success";
+    static DANGER = "alert-danger";
+    static WARNING = "alert-warning";
+    static INFO = "alert-info";
+    static LIGHT = "alert-light";
+    static DARK = "alert-dark";
+};
