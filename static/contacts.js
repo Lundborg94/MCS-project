@@ -116,7 +116,14 @@ const addToList = (function () { // Note: this function is constructed
         });
 
         const phoneNumberText = listItem.getElementsByClassName("phone-number")[0];
-        phoneNumberText.innerHTML = phoneNumber;
+
+        const formatted = tryFormatPhoneNumber(phoneNumber);
+        if (formatted) {
+            phoneNumberText.innerHTML = formatted;
+        }
+        else {
+            phoneNumberText.innerHTML = phoneNumber;
+        }
 
         contactList.appendChild(listItem);
     };
@@ -151,6 +158,31 @@ async function deleteEmergencyContact(id) {
     });
 }
 
+async function phoneNumberInputListener(src) {
+    const pattern = /^(\+\d{2}\s?\d{2}(\-|\s)?\d{3}\s?\d{2}\s?\d{2})$/;
+    
+    const saveButton = document.getElementById("saveButton");
+
+    if (src.value == "") {
+        src.classList.remove("is-invalid");
+        src.classList.remove("is-valid");
+        return;
+    }
+
+    if (pattern.test(src.value)) {
+        if (src.classList.contains("is-invalid"));
+            src.classList.remove("is-invalid");
+        src.classList.add("is-valid");
+        saveButton.disabled = false;
+    }
+    else {
+        if (src.classList.contains("is-valid"))
+            src.classList.remove("is-valid");
+        src.classList.add("is-invalid");
+        saveButton.disabled = true;
+    }
+}
+
 async function onSaveButtonClicked() {
     // Button components
     const saveButton = document.getElementById("saveButton");
@@ -158,8 +190,16 @@ async function onSaveButtonClicked() {
     const spinner = document.getElementById("saveSpinner");
 
     const phoneNumberInput = document.getElementById("phoneNumberInput");
-    const phoneNumber = phoneNumberInput.value;
+
+    let phoneNumber = phoneNumberInput.value;
+    let phoneNumberNormalized = "";
     
+    // Removes special characters (except +)
+    for (let i = 0; i < phoneNumber.length; i++) {
+        if (/^[\d\+]$/.test(phoneNumber[i]))
+            phoneNumberNormalized += phoneNumber[i];
+    }
+
     saveButton.disabled = true;
     saveText.innerHTML = "Saving";
     spinner.hidden = false;
@@ -170,7 +210,7 @@ async function onSaveButtonClicked() {
         await sleep(500);
 
         response = await addEmergencyContact({
-            phone_number: phoneNumber
+            phone_number: phoneNumberNormalized
         });
     }
     catch (e) {
@@ -184,7 +224,9 @@ async function onSaveButtonClicked() {
     finally {
         saveText.innerHTML = "Save";
         spinner.hidden = true;
-        saveButton.disabled = false;
+
+        phoneNumberInput.value = "";
+        phoneNumberInput.classList.remove("is-valid");
 
         collapseAddContactPanel();
     }
@@ -210,7 +252,7 @@ async function onSaveButtonClicked() {
 
     const onRemoveButtonClicked = createOnRemoveButtonEventHandler(ecId);
 
-    addToList("eid-" + ecId, phoneNumber, onRemoveButtonClicked);
+    addToList("eid-" + ecId, tryFormatPhoneNumber(phoneNumberNormalized), onRemoveButtonClicked);
 
     showStatusAlert(AlertType.SUCCESS, "The recepient was successfully added to your contact list!", 5000);
 }
@@ -263,3 +305,33 @@ const AlertType = class {
     static LIGHT = "alert-light";
     static DARK = "alert-dark";
 };
+
+// Helpers
+
+// Returns null if failed to format
+function tryFormatPhoneNumber(str) {
+    const internationalMobilePattern = /^\+(\d{2})(\d{2})(\d{3})(\d{2})(\d{2})$/;
+    const localMobilePattern = /^(\d{3})(\d{3})(\d{2})(\d{2})$/;
+
+    const internationalLandlinePattern = /^\+(\d{2})(\d{2,3})(\d{3})(\d{2})$/;
+    const localLandlinePattern = /^(\d{3,4})(\d{3})(\d{2})$/;
+
+    if (internationalMobilePattern.test(str)) {
+        const segments = internationalMobilePattern.exec(str);
+        return `+${segments[1]} ${segments[2]}-${segments[3]} ${segments[4]} ${segments[5]}`;
+    }
+    else if (localMobilePattern.test(str)) {
+        const segments = localMobilePattern.exec(str);
+        return `${segments[1]}-${segments[2]} ${segments[3]} ${segments[4]}`;
+    }
+    else if (internationalLandlinePattern.test(str)) {
+        const segments = internationalLandlinePattern.exec(str);
+        return `+${segments[1]} ${segments[2]}-${segments[3]} ${segments[4]}`;
+    }
+    else if (localLandlinePattern.test(str)) {
+        const segments = localLandlinePattern.exec(str);
+        return `${segments[1]}-${segments[2]} ${segments[3]}`;
+    }
+    
+    return null;
+}

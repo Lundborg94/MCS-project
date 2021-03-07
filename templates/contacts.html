@@ -20,21 +20,23 @@
     </head>
     <body>
         <div class="container">
-            <h2>Emergency Contacts</h1>
-            <p style="text-align: right;">
-                <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#addContactPanel" aria-expanded="false" aria-controls="addContactPanel">
-                    <i class="fa fa-user-plus"></i>
-                </button>
-            </p>
+            <div class="row">
+                <h1 class="col">Emergency Contacts</h1>
+                <p class="col" style="text-align: right;">
+                    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#addContactPanel" aria-expanded="false" aria-controls="addContactPanel">
+                        <i class="fa fa-user-plus"></i>
+                    </button>
+                </p>
+            </div>
             <div class="collapse" id="addContactPanel">
-                <div class="card card-body">
+                <div class="card card-body bg-light">
                     <form>
                         <div class="form-group">
                             <label for="phoneNumberInput">Phone Number</label>
-                            <input id="phoneNumberInput" type="tel" class="form-control" aria-describedby="emailHelp" placeholder="+46 XX-XXX XX XX">
-                            <small id="emailHelp" class="form-text text-muted">We'll send a text message to the recepient in case something happens</small>
+                            <input id="phoneNumberInput" type="tel" class="form-control" aria-describedby="smallPhone" placeholder="+46 ..." onkeyup="phoneNumberInputListener(this)">
+                            <small id="smallPhone" class="form-text text-muted">We'll send a text message to the recepient in case something happens</small>
                         </div>
-                        <button id="saveButton" type="button" class="btn btn-success" onclick="onSaveButtonClicked()">
+                        <button id="saveButton" type="button" class="btn btn-success" onclick="onSaveButtonClicked()" disabled>
                             <span id="saveText">Save</span>
                             <div id="saveSpinner" class="spinner-border spinner-border-sm text-light" role="status" hidden>
                                 <span class="sr-only">Saving...</span>
@@ -54,7 +56,7 @@
                 <!--REMOVED ON PAGE LOAD-->
                 <li id="listItemBlueprint" class="list-group-item">
                     <div class="d-flex justify-content-between">
-                        <p class="text-gray-dark phone-number">+46XXXXXXXX0</p>
+                        <p class="text-gray-dark lead phone-number">+46XXXXXXXX0</p>
                         <div>
                             <button type="button" class="btn btn-outline-danger remove">
                                 <i class="fa fa-trash"></i>
