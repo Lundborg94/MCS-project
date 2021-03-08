@@ -25,5 +25,5 @@ def send_msg(phone_number, msg):
     print(message.sid)
 
 
-if __name__ == '__main__':
-    send_msg('+46733933020', 'hej hej')
+# if __name__ == '__main__':
+    # send_msg('+46733933020', 'hej hej')

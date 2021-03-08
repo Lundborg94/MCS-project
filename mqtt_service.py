@@ -4,6 +4,10 @@ from awsiot import mqtt_connection_builder
 import time
 import uuid
 import json
+import mcs_services
+import mcs_repositories
+import sqlite3
+import smsAPI
 
 
 def main():
@@ -12,6 +16,26 @@ def main():
 
 def on_message_received(topic, payload, dup, qos, retain, **kwargs):
     print("Received message from topic '{}': {}".format(topic, payload))
+    message = json.loads(payload.decode('utf-8'))
+
+    if message['value'] == 'crash':
+        with sqlite3.connect('deviceservice.db') as context:
+            service = mcs_services.DashboardService(mcs_repositories.EmergencyRepositoryTest(context))
+            ice_contacts = service.get_ice_contacts_for_device(message['device_id'])
+            for contact in ice_contacts:
+
+                phone_number = contact['phone_number']
+                device_location = mcs_services.LocationService(mcs_repositories.LocationRepository(context),mcs_repositories.CumulocityRepository(context))
+                GPS_location = device_location.get_latest_location(message['device_id'])
+                crash_message_1 = 'A person that has made you his or her emergency contact has crashed at the following location: '
+                crash_message_2 = 'Please make sure that they are alright or contact the emergency services!'
+                if GPS_location:
+                    smsAPI.send_msg(phone_number, crash_message_1 + GPS_location['latitude'] + ' ' + GPS_location['longitude'] + crash_message_2)
+                else:
+                    print('Could not find GPS location')
+
+
+
 
 
 def on_connection_interrupted(connection, error, **kwargs):
@@ -42,16 +66,16 @@ def begin_resources():
 
     credentials_provider = auth.AwsCredentialsProvider.new_default_chain(client_bootstrap)
     mqtt_connection = mqtt_connection_builder.mtls_from_path(
-        endpoint = endpoint,
-        cert_filepath = config["cert_filepath"],
-        pri_key_filepath = config["pri_key_filepath"],
-        client_bootstrap = client_bootstrap,
-        ca_filepath = config["ca_filepath"],
-        on_connection_interrupted = on_connection_interrupted,
-        on_connection_resumed = on_connection_resumed,
-        client_id = client_id,
-        clean_session = config["clean_session"],
-        keep_alive_secs = config["keep_alive_secs"]
+        endpoint=endpoint,
+        cert_filepath=config["cert_filepath"],
+        pri_key_filepath=config["pri_key_filepath"],
+        client_bootstrap=client_bootstrap,
+        ca_filepath=config["ca_filepath"],
+        on_connection_interrupted=on_connection_interrupted,
+        on_connection_resumed=on_connection_resumed,
+        client_id=client_id,
+        clean_session=config["clean_session"],
+        keep_alive_secs=config["keep_alive_secs"]
     )
 
     print('Connecting to {} with client ID "{}"...'.format(endpoint, client_id))
@@ -74,15 +98,6 @@ def begin_resources():
     print("Subscribed with {}".format(str(subscribe_result['qos'])))
 
     while True:
-        
-        message = "test"
-        print("Publishing message to topic '{}': {}".format(topic, message))
-        mqtt_connection.publish(
-            topic=topic,
-            payload=message,
-            qos=mqtt.QoS.AT_LEAST_ONCE
-        )
-        
         time.sleep(5)
 
 
