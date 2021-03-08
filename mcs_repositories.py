@@ -157,13 +157,12 @@ class CumulocityRepository:
         return cursor.fetchall()
 
     def add_cumulocity(self, cumulocity_username, cumulocity_tenant_id, cumulocity_password, user_id, active):
-        self.__context.execute('INSERT INTO Cumulocity VALUES (null, ?, ?, ?, ?)',
+        cursor = self.__context.execute('INSERT INTO Cumulocity VALUES (null, ?, ?, ?, ?)',
                                [cumulocity_username, cumulocity_tenant_id, cumulocity_password, active])
+        cumulocity_id = cursor.lastrowid
         self.__context.commit()
-        cursor = self.__context.execute('SELECT Id FROM Cumulocity WHERE TenantId = ? AND Password = ?',
-                                        [cumulocity_tenant_id, cumulocity_password])
-        cumulocity_id, = cursor.fetchone()
-        self.__context.execute('UPDATE Device SET CumulocityId = ? WHERE Id = ?', [cumulocity_id, user_id])
+
+        self.__context.execute('UPDATE Device SET CumulocityId = ? WHERE Id = ?', [cumulocity_id, str(user_id)])
         self.__context.commit()
 
     def set_state(self, device_id, state: bool):
