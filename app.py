@@ -4,15 +4,65 @@ import threading
 import time
 import re
 
+from flask_socketio import SocketIO
 from flask import Flask, render_template, redirect, url_for, request, session, make_response, jsonify
 from flask.sessions import SecureCookieSessionInterface
+from flask_mqtt import Mqtt
+from flask_bootstrap import Bootstrap
+
 from mcs_services import AccountService, AddUserDto, LocationService, DashboardService
 from mcs_repositories import DeviceRepositoryTest, CumulocityRepository, LocationRepository, EmergencyRepositoryTest
 
+def get_mqtt_config():
+    with open("project_config_file.json", "r") as file:
+        config = file.read()
+
+    return json.loads(config)['mqtt_config']
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "ITSASECRET"
+mqtt_config = get_mqtt_config()
+app.config['MQTT_BROKER_URL'] = mqtt_config['endpoint']
+app.config['MQTT_BROKER_PORT'] = 8883
+app.config['MQTT_REFRESH_TIME'] = 1.0  # refresh time in seconds
+app.config['SECRET'] = mqtt_config['pri_key_filepath']
+app.config['MQTT_KEEPALIVE'] = 5
+app.config['MQTT_CLEAN_SESSION'] = mqtt_config['clean_session']
+app.config['MQTT_TLS_CA_CERTS'] = mqtt_config['ca_filepath']
+app.config['MQTT_TLS_CERTFILE'] = mqtt_config['cert_filepath']
+mqtt = Mqtt(app)
+socketio = SocketIO(app)
+bootstrap = Bootstrap(app)
+
+@socketio.on('subscribe')
+def handle_subscribe():
+    mqtt.subscribe(mqtt_config['topic'])
+
+
+@mqtt.on_connect()
+def handle_connect(client, userdata, flags, rc):
+    mqtt.subscribe(mqtt_config['topic'])
+
+
+@mqtt.on_message()
+def handle_mqtt_message(client, userdata, message):
+    data = dict(
+        topic=message.topic,
+        payload=message.payload.decode()
+    )
+    print(message.topic)
+    print(message.payload.decode())
+
+
+
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 session_serializer = SecureCookieSessionInterface().get_signing_serializer(app)
+
+
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -236,4 +286,6 @@ if __name__ == '__main__':
     x.start()
 
     # Start app
+    socketio.run(app, port=5000)
     app.run(port=5000, debug=False)
+
