@@ -9,9 +9,11 @@ import mcs_repositories
 import sqlite3
 import smsAPI
 
-
-def main():
-    print('Hello World!')
+message_template = """
+    A person that has made you his or her emergency contact has crashed at the following location:
+    long {} lat {}
+    Please make sure that they are alright or contact the emergency services!
+"""
 
 
 def on_message_received(topic, payload, dup, qos, retain, **kwargs):
@@ -25,17 +27,19 @@ def on_message_received(topic, payload, dup, qos, retain, **kwargs):
             for contact in ice_contacts:
 
                 phone_number = contact['phone_number']
-                device_location = mcs_services.LocationService(mcs_repositories.LocationRepository(context),mcs_repositories.CumulocityRepository(context))
-                GPS_location = device_location.get_latest_location(message['device_id'])
-                crash_message_1 = 'A person that has made you his or her emergency contact has crashed at the following location: '
-                crash_message_2 = 'Please make sure that they are alright or contact the emergency services!'
-                if GPS_location:
-                    smsAPI.send_msg(phone_number, crash_message_1 + GPS_location['latitude'] + ' ' + GPS_location['longitude'] + crash_message_2)
+                device_location = mcs_services.LocationService(mcs_repositories.LocationRepository(context),
+                                                               mcs_repositories.CumulocityRepository(context))
+                gps_location = device_location.get_latest_location(message['device_id'])
+                if gps_location:
+                    try:
+                        msg = message_template.format(gps_location['longitude'], gps_location['latitude'])
+                        smsAPI.send_msg(phone_number, msg)
+                        print("Sent message to: " + phone_number, '\n', msg)
+                    except Exception as e:
+                        print('Could not send message due to an exception: ')
+                        print(e)
                 else:
                     print('Could not find GPS location')
-
-
-
 
 
 def on_connection_interrupted(connection, error, **kwargs):
