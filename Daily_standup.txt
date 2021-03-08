@@ -1,4 +1,4 @@
-Standup ett (datum)
+Standup ett (8/2)
 
 Vi gick igenom projektet och vad som förväntades av oss för att fullfölja detta.
 Sedan satte vi oss in i alla program såsom Jira för att skapa sprints.
@@ -6,7 +6,7 @@ Hade brainstorm för olika ideér och fastnade till slut i en motorcykel krasch 
 hojens lutning och om den hamnar under en viss vinkel och tid så skickas det ut ett sms till en 
 ICE kontakt att personen har råkat ut för en olycka.
 
-Standup två (datum)
+Standup två (10/2)
 
 Johan Wassberg skapade olika sprints på Jira för att struktera upp vårt arbete, vi gemensamt kom 
 med input om förväntad tid och resurser för att kunna producera vårt projekt.
@@ -14,7 +14,7 @@ Undersökte en del om Cumulocity för att använda sensorerna i våra mobiler, f
 kunde få ut datan från Cumulocity till en databas. Denna frågan skulle Johan ta vidare till deras 
 support.
 
-Standup tre (datum)
+Standup tre (15/2)
 
 Vi löste vår MQTT publish/subscribe ihop med AWS IOT. Johan fick svar från Cumulocity att datan
 gick att få ur appen så vi valde att gå med denna lösningen för att framkalla en krasch.
@@ -22,15 +22,39 @@ Vi kommer använda oss av accelerometer, gyro och location.
 För att koppla samman så har vi valt att gå med Twilio SMS där vi sänder ett sms till våra enheter.
 Jesper, Andreas och Johan jobbade med twilio för att få till att skicka sms.
 
-Standup fyra (datum)
+Standup fyra (18/2)
 
 Vi behövde en inloggningssida där man loggar in med sin deviceID och lösenord. Detta löste Jessica
 så vi har en fungerande inlogg som sedan leder oss till dashboard.
-Detta skall Jessica fixa inför nästa standup.
 
-Standup fem (datum)
+Standup fem (22/2)
 
 Cumulocity gyro sensor funkar ej som önskat så vi behöver hitta ett alternativ som är bättre.
 Nästa steg är att hitta en annan lösning och sammankoppla detta med vår applikation.
 Vi hittade en Android emulator där vi kan koppla oss till androids sensorer och därmed få ut all
 nödvändig data. Detta skall vi undersöka inför nästa standup.
+
+Standup sex (25/2)
+
+Vi valde att gå med cumulocity för att få ut location och istället node-red för att simulera en krasch och därefter skicka notis.
+Detta för att fokusera på  övergripande syftet med projektet att koppla ihop med AWS.
+Skapar en registreringssida för ny användare som ger access till dashboard.
+Johan skall skapa en databas med DynamoDB.
+???
+
+Standup sju (1/3)
+
+Johan har skapat en databas för användare/kontakter.
+**Vad saknas?
+
+Standup åtta (3/3)
+
+Fixa en dashboard med kontakter och min sida.
+Lösa Node-Red för simulering av krasch som kopplar sig med mqtt.
+**Vad saknas?
+
+Standup nio (8/3)
+
+Andreas fixar Node-red och kopplar ihop med MQTT.
+Jessica fixar dashboard.
+
