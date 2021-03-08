@@ -11,13 +11,13 @@ Standup två (10/2)
 Johan Wassberg skapade olika sprints på Jira för att struktera upp vårt arbete, vi gemensamt kom 
 med input om förväntad tid och resurser för att kunna producera vårt projekt.
 Undersökte en del om Cumulocity för att använda sensorerna i våra mobiler, frågan ställdes om vi 
-kunde få ut datan från Cumulocity till en databas. Denna frågan skulle Johan ta vidare till deras 
+kunde få ut datan från Cumulocity via mqtt. Denna frågan skulle Johan ta vidare till deras 
 support.
 
 Standup tre (15/2)
 
 Vi löste vår MQTT publish/subscribe ihop med AWS IOT. Johan fick svar från Cumulocity att datan
-gick att få ur appen så vi valde att gå med denna lösningen för att framkalla en krasch.
+gick att få från cumulocity via rest-api så vi valde att gå med denna lösningen för att framkalla en krasch.
 Vi kommer använda oss av accelerometer, gyro och location.
 För att koppla samman så har vi valt att gå med Twilio SMS där vi sänder ett sms till våra enheter.
 Jesper, Andreas och Johan jobbade med twilio för att få till att skicka sms.
@@ -39,22 +39,26 @@ Standup sex (25/2)
 Vi valde att gå med cumulocity för att få ut location och istället node-red för att simulera en krasch och därefter skicka notis.
 Detta för att fokusera på  övergripande syftet med projektet att koppla ihop med AWS.
 Skapar en registreringssida för ny användare som ger access till dashboard.
-Johan skall skapa en databas med DynamoDB.
+Johan skall skapa en testdatabas för inlogg.
 ???
 
 Standup sju (1/3)
 
-Johan har skapat en databas för användare/kontakter.
+Johan har skapat en sqlite-databas med exempeldata för användare/kontakter.
 **Vad saknas?
 
 Standup åtta (3/3)
 
 Fixa en dashboard med kontakter och min sida.
 Lösa Node-Red för simulering av krasch som kopplar sig med mqtt.
+Johan har lagt till två nya tabeller i databsen, ena tabellen för att spara cumulocity-uppgifter/användare och andra för gps-logg/användare
+så att vi ska kunna utföra beräkningar som fordonets hastighet.
 **Vad saknas?
 
 Standup nio (8/3)
 
 Andreas fixar Node-red och kopplar ihop med MQTT.
 Jessica fixar dashboard.
+Johan har modifierat registreringsidan så att man där tillfälligt kan ange sina cumulocity-uppgifter som krävs för gps-spårningen.
+Har även skapat en sida där man kan lägga till och ta bort nödkontakter och ska ingå i dashboard.
 
