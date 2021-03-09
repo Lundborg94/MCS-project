@@ -52,7 +52,7 @@ class AccountService:
         device_entity = self._device_repo.get_device(device_id)
         if not device_entity:
             return None
-        device = DeviceDto(device_entity.id, device_entity.name)
+        device = DeviceDto(device_entity.id, device_entity.name, device_entity.vehicle_color, device_entity.vehicle_brand)
         return UserDto(device)
 
     def get_user_password(self, device_id: uuid):
@@ -73,6 +73,7 @@ class DashboardService:
         return [{
             "id": ec.id,
             "device_id": ec.device_id,
+            "name": ec.name,
             "phone_number": ec.phone_number
         } for ec in ecs]
 

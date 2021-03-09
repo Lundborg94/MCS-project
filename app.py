@@ -203,7 +203,7 @@ def add_device_emergency_contact():
     with sqlite3.connect('deviceservice.db') as context:
         service = DashboardService(EmergencyRepositoryTest(context))
 
-        ec_id = service.add_ice_contact_for_device(session["user"]["device"]["device_id"], json_message["phone_number"])
+        ec_id = service.add_ice_contact_for_device(session["user"]["device"]["device_id"], json_message["phone_number"], json_message["name"])
 
         return str(ec_id), 200
 

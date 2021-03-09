@@ -5,6 +5,8 @@ const serverSession = "session=" + getSession("client_session").value;
 (async function() {
     //await sleep(3000);
     const emergencyContacts = await getEmergencyContacts();
+
+    console.log(emergencyContacts);
     
     if (emergencyContacts.length == 0) {
         showStatusAlert(
@@ -20,7 +22,7 @@ const serverSession = "session=" + getSession("client_session").value;
         const onRemoveButtonClicked = createOnRemoveButtonEventHandler(ice.id);
 
         // Create list item and add to DOM
-        addToList("eid-" + ice.id, ice.phone_number, onRemoveButtonClicked);
+        addToList("eid-" + ice.id, ice.name, ice.phone_number, onRemoveButtonClicked);
     }
 })();
 
@@ -78,7 +80,7 @@ const addToList = (function () { // Note: this function is constructed
     contactList.removeChild(li);
 
     // The addToList function
-    return (idAttribute, phoneNumber, onRemove) => {
+    return (idAttribute, contactName, phoneNumber, onRemove) => {
         const listItem = li.cloneNode(true);
 
         // Set the tag's id attribute to ice id so that we can refer back
@@ -115,7 +117,10 @@ const addToList = (function () { // Note: this function is constructed
             }
         });
 
+        const contactNameText = listItem.getElementsByClassName("contact-name")[0];
         const phoneNumberText = listItem.getElementsByClassName("phone-number")[0];
+
+        console.log(contactNameText);
 
         const formatted = tryFormatPhoneNumber(phoneNumber);
         if (formatted) {
@@ -124,6 +129,8 @@ const addToList = (function () { // Note: this function is constructed
         else {
             phoneNumberText.innerHTML = phoneNumber;
         }
+
+        contactNameText.innerHTML = contactName;
 
         contactList.appendChild(listItem);
     };
@@ -183,13 +190,32 @@ async function phoneNumberInputListener(src) {
     }
 }
 
+async function contactNameInputListener(src) {
+    const saveButton = document.getElementById("saveButton");
+
+    if (src.value == "") {
+        src.classList.remove("is-invalid");
+        src.classList.remove("is-valid");
+        return;
+    }
+
+    if (src.classList.contains("is-invalid"));
+            src.classList.remove("is-invalid");
+
+    src.classList.add("is-valid");
+    saveButton.disabled = false;
+}
+
 async function onSaveButtonClicked() {
     // Button components
     const saveButton = document.getElementById("saveButton");
     const saveText = document.getElementById("saveText");
     const spinner = document.getElementById("saveSpinner");
 
+    const contactNameInput = document.getElementById("contactNameInput");
     const phoneNumberInput = document.getElementById("phoneNumberInput");
+
+    let contactName = contactNameInput.value;
 
     let phoneNumber = phoneNumberInput.value;
     let phoneNumberNormalized = "";
@@ -210,6 +236,7 @@ async function onSaveButtonClicked() {
         await sleep(500);
 
         response = await addEmergencyContact({
+            name: contactName,
             phone_number: phoneNumberNormalized
         });
     }
@@ -252,7 +279,7 @@ async function onSaveButtonClicked() {
 
     const onRemoveButtonClicked = createOnRemoveButtonEventHandler(ecId);
 
-    addToList("eid-" + ecId, tryFormatPhoneNumber(phoneNumberNormalized), onRemoveButtonClicked);
+    addToList("eid-" + ecId, contactName, tryFormatPhoneNumber(phoneNumberNormalized), onRemoveButtonClicked);
 
     showStatusAlert(AlertType.SUCCESS, "The recepient was successfully added to your contact list!", 5000);
 }

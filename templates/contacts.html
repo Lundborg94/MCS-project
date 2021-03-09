@@ -38,12 +38,16 @@
                         </button>
                     </p>
                 </div>
-                <div class="collapse" id="addContactPanel">
+                <div class="" id="addContactPanel">
                     <div style="margin: 0 0 12px 0;">
                         <form>
                             <div class="form-group">
+                                <label for="contactNameInput">Contact Name</label>
+                                <input id="contactNameInput" type="text" class="form-control" aria-describedby="smallPhone" placeholder="Name" onkeyup="contactNameInputListener(this)">
+
                                 <label for="phoneNumberInput">Phone Number</label>
                                 <input id="phoneNumberInput" type="tel" class="form-control" aria-describedby="smallPhone" placeholder="+46 ..." onkeyup="phoneNumberInputListener(this)">
+
                                 <small id="smallPhone" class="form-text text-muted">We'll send a text message to the recepient in case something happens</small>
                             </div>
                             <button id="saveButton" type="button" class="btn btn-success" onclick="onSaveButtonClicked()" disabled>
@@ -66,7 +70,10 @@
                     <!--REMOVED ON PAGE LOAD-->
                     <li id="listItemBlueprint" class="list-group-item">
                         <div class="d-flex justify-content-between">
-                            <p class="text-gray-dark lead phone-number">+46XXXXXXXX0</p>
+                            <div>
+                                <p class="text-gray-dark lead contact-name">Name Surname</p>
+                                <p class="text-gray-dark lead phone-number">+46XXXXXXXX0</p>
+                            </div>
                             <div>
                                 <button type="button" class="btn btn-outline-danger remove">
                                     <i class="fa fa-trash"></i>

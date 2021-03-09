@@ -6,17 +6,20 @@ import cumulocity_api
 
 # ENTITIES
 class EmergencyContact:
-    def __init__(self, id, device_id: uuid, phone_number: str):
+    def __init__(self, id, device_id: uuid, phone_number: str, name):
         self.id = id
         self.device_id = device_id
         self.phone_number = phone_number
+        self.name = name
 
 
 class Device:
-    def __init__(self, id: uuid, name: str, password: str):
+    def __init__(self, id: uuid, name: str, password: str, vehicle_color, vehicle_brand):
         self.id = id
         self.name = name
         self.password = password
+        self.vehicle_color = vehicle_color
+        self.vehicle_brand = vehicle_brand
 
 
 # INTERFACES
@@ -81,7 +84,8 @@ class DeviceRepositoryTest(DeviceRepositoryInterface):
         if not tup:
             return None
 
-        device = Device(tup[0], tup[1], tup[2])
+        device_id, name, color, brand, password, _ = tup
+        device = Device(id=device_id, name=name, password=password, vehicle_color=color, vehicle_brand=brand)
 
         return device
 
@@ -103,13 +107,18 @@ class EmergencyRepositoryTest(EmergencyRepositoryInterface):
     def get_emergency_contact(self, id):
         cursor = self.__context.execute('SELECT * FROM EmergencyContact WHERE Id = ?', [id])
         tup = cursor.fetchone()
-        ec = EmergencyContact(tup[0], tup[1], tup[2])
+
+        if not tup:
+            return None
+
+        ec_id, d_id, name, phone_number = tup
+        ec = EmergencyContact(id=ec_id, device_id=d_id, name=name, phone_number=phone_number)
         return ec
 
     def get_emergency_contacts_for_device(self, device_id: uuid) -> list[EmergencyContact]:
         cursor = self.__context.execute('SELECT * FROM EmergencyContact WHERE DeviceId = ?', [device_id])
         tups = cursor.fetchall()
-        return [EmergencyContact(tup[0], tup[1], tup[2]) for tup in tups]
+        return [EmergencyContact(id=ec_id, device_id=d_id, name=name, phone_number=phone_number) for ec_id, d_id, name, phone_number in tups]
 
     def add_emergency_contact(self, device_id: uuid, phone_number: str, name):
         cursor = self.__context.execute('INSERT INTO EmergencyContact VALUES (NULL, ?, ?, ?)',
