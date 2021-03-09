@@ -60,3 +60,9 @@ Jessica fixar dashboard.
 Johan har modifierat registreringsidan så att man där tillfälligt kan ange sina cumulocity-uppgifter som krävs för gps-spårningen.
 Har även skapat en sida där man kan lägga till och ta bort nödkontakter och ska ingå i dashboard.
 
+Standup tio (9/3)
+
+Vi har idag fixat kontaktsidan samt en bugg i databasen.
+Kört en demo internt för att hitta eventuella buggar eller fel i vår kod. Allt funkar korrekt och det som saknas nu är design
+på dashboard.
+
