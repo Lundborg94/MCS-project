@@ -6,8 +6,6 @@ const serverSession = "session=" + getSession("client_session").value;
     //await sleep(3000);
     const emergencyContacts = await getEmergencyContacts();
 
-    console.log(emergencyContacts);
-    
     if (emergencyContacts.length == 0) {
         showStatusAlert(
             AlertType.PRIMARY, 
@@ -196,6 +194,7 @@ async function contactNameInputListener(src) {
     if (src.value == "") {
         src.classList.remove("is-invalid");
         src.classList.remove("is-valid");
+        saveButton.disabled = true;
         return;
     }
 
@@ -203,7 +202,6 @@ async function contactNameInputListener(src) {
             src.classList.remove("is-invalid");
 
     src.classList.add("is-valid");
-    saveButton.disabled = false;
 }
 
 async function onSaveButtonClicked() {
