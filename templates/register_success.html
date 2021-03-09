@@ -24,41 +24,10 @@
       <div class="d-flex justify-content-center">
         <div class="mt-auto p-2">
 
-          <p class="h5">REGISTER YOUR DEVICE</p>
-          <form action="{{ url_for('register') }}" method="post">
+          <p class="h5">DEVICE REGISTERED</p>
             <div class="msg">{{ msg }}</div>
 
-          <div class="form-field">
-          <input type="text" placeholder="DeviceID" name="deviceid">
-          </div>
-
-          <div class="form-field">
-           <input type="text" placeholder="Device name" name="deviceName">
-          </div>
-
-           <div class="form-field">
-            <input type="text" placeholder="Vehicle" name="vehicle">
-           </div>
-
-           <div class="form-field">
-            <input type="password" placeholder="Password" name="password">
-           </div>
-
-           <div class="form-field">
-            <input type="text" placeholder="Cumulocity Username" name="cumulocityName">
-           </div>
-
-           <div class="form-field">
-            <input type="text" placeholder="Cumulocity Tenant Id" name="tenantId">
-           </div>
-
-           <div class="form-field">
-            <input type="password" placeholder="Cumulocity Password" name="cumulocityPassword">
-           </div>
-
-          <div class="form-field2">
-          <input class="btn btn-outline-dark btn-sm" type="submit" value="Register">
-        </div>
+        
             <p class="bottom">Already have an account? <br> <a class="bottom" href="{{url_for('login')}}"> Sign in here <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
               <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
             </svg></a></p></div>
@@ -66,4 +35,3 @@
         </div> 
     </body> 
 </html>
-

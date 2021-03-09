@@ -45,7 +45,6 @@ Johan skall skapa en testdatabas för inlogg.
 Standup sju (1/3)
 
 Johan har skapat en sqlite-databas med exempeldata för användare/kontakter.
-**Vad saknas?
 
 Standup åtta (3/3)
 
@@ -53,7 +52,6 @@ Fixa en dashboard med kontakter och min sida.
 Lösa Node-Red för simulering av krasch som kopplar sig med mqtt.
 Johan har lagt till två nya tabeller i databsen, ena tabellen för att spara cumulocity-uppgifter/användare och andra för gps-logg/användare
 så att vi ska kunna utföra beräkningar som fordonets hastighet.
-**Vad saknas?
 
 Standup nio (8/3)
 

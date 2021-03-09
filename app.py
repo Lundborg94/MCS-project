@@ -89,10 +89,14 @@ def register():
             else:
                 account_service.add_user(AddUserDto(deviceid, name, password, cumulocity_name, cumulocity_tenant_id, cumulocity_password))
                 msg = 'You have successfully registered !'
+                return redirect(url_for('register_success', msg=msg))
     elif request.method == 'POST':
         msg = 'Please fill out the form !'
     return render_template('register.html', msg=msg)
 
+@app.route('/register_success')
+def register_success():
+    return render_template('register_success.html')
 
 @app.route('/')
 def home():

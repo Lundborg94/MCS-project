@@ -26,12 +26,12 @@ body {
   background: rgb(240, 243, 243);
   border-radius: 5px;
   width:300px;
-  height: 500px;
+  height: 550px;
   }
 
  .bottom {
    text-align: center;
-   margin-top: 5rem;
+   margin-top: 3rem;
    font-size: 12px;
  }
 
@@ -40,7 +40,7 @@ body {
  }
 
  ::placeholder {
-  font-size: 15px;
+  font-size: 12px;
  }
 
 .form-field {
