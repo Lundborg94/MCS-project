@@ -222,3 +222,4 @@ class LocationRepository:
             "altitude": tup[2],
             "date_time": tup[3]
         }
+
