@@ -8,6 +8,10 @@ import mcs_services
 import mcs_repositories
 import sqlite3
 import smsAPI
+import pyodbc
+
+from mcs_repositories import EmergencyRepository, LocationRepository, CumulocityRepository
+from mcs_services import DashboardService, LocationService
 
 message_template = """
     A person that has made you his or her emergency contact has crashed at the following location:
@@ -16,20 +20,25 @@ message_template = """
 """
 
 
+db_connection_string = None
+
+
 def on_message_received(topic, payload, dup, qos, retain, **kwargs):
     print("Received message from topic '{}': {}".format(topic, payload))
     message = payload.decode('utf-8')
 
     if message:
-        with sqlite3.connect('deviceservice.db') as context:
-            service = mcs_services.DashboardService(mcs_repositories.EmergencyRepositoryTest(context))
-            ice_contacts = service.get_ice_contacts_for_device(message)
+        #with sqlite3.connect('deviceservice.db') as context:
+        with pyodbc.connect(db_connection_string) as context:
+            dashboard_service = DashboardService(EmergencyRepository(context))
+            ice_contacts = dashboard_service.get_ice_contacts_for_device(message)
             for contact in ice_contacts:
 
                 phone_number = contact['phone_number']
-                device_location = mcs_services.LocationService(mcs_repositories.LocationRepository(context),
-                                                               mcs_repositories.CumulocityRepository(context))
-                gps_location = device_location.get_latest_location(message)
+                print(phone_number)
+                device_service = LocationService(LocationRepository(context),
+                                                 CumulocityRepository(context))
+                gps_location = device_service.get_latest_location(message)
                 if gps_location:
                     try:
                         msg = message_template.format(gps_location['longitude'], gps_location['latitude'])
@@ -57,7 +66,10 @@ def get_mqtt_config():
     return json.loads(config)['mqtt_config']
 
 
-def begin_resources():
+def begin_resources(db_connection_str):
+    global db_connection_string
+    db_connection_string = db_connection_str
+
     config = get_mqtt_config()
 
     endpoint = config["endpoint"]

@@ -4,26 +4,21 @@ import threading
 import time
 import re
 import mqtt_service
+import pyodbc
 
 from flask import Flask, render_template, redirect, url_for, request, session, make_response, jsonify
 from flask.sessions import SecureCookieSessionInterface
 
 from mcs_services import AccountService, AddUserDto, LocationService, DashboardService
-from mcs_repositories import DeviceRepositoryTest, CumulocityRepository, LocationRepository, EmergencyRepositoryTest
-
-
+from mcs_repositories import DeviceRepositoryTest, CumulocityRepositoryTest, LocationRepositoryTest, EmergencyRepositoryTest, DeviceRepository, EmergencyRepository, CumulocityRepository, LocationRepository
 
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "ITSASECRET"
 
-
-
-
-
 session_serializer = SecureCookieSessionInterface().get_signing_serializer(app)
 
-
+db_connection_string = None
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -38,8 +33,9 @@ def login():
         device_id = request.form['deviceID']
         req_password = request.form['password']
 
-        with sqlite3.connect('deviceservice.db') as context:
-            service = AccountService(DeviceRepositoryTest(context), CumulocityRepository(context))
+        #with sqlite3.connect('deviceservice.db') as context:
+        with pyodbc.connect(db_connection_string) as context:
+            service = AccountService(DeviceRepository(context), CumulocityRepository(context))
             correct_password = service.get_user_password(device_id)
 
             if req_password == correct_password:
@@ -78,8 +74,9 @@ def register():
         cumulocity_tenant_id = request.form['tenantId']
         cumulocity_password = request.form['cumulocityPassword']
 
-        with sqlite3.connect('deviceservice.db') as context:
-            account_service = AccountService(DeviceRepositoryTest(context), CumulocityRepository(context))
+        #with sqlite3.connect('deviceservice.db') as context:
+        with pyodbc.connect(db_connection_string) as context:
+            account_service = AccountService(DeviceRepository(context), CumulocityRepository(context))
 
             account = account_service.get_user(deviceid)
             if account:
@@ -119,7 +116,8 @@ def get_current_location():
     if not is_user_in_session():
         return "Unauthorized", 401
 
-    with sqlite3.connect('deviceservice.db') as context:
+    #with sqlite3.connect('deviceservice.db') as context:
+    with pyodbc.connect(db_connection_string) as context:
         service = LocationService(LocationRepository(context), CumulocityRepository(context))
         location = service.get_realtime_location(session["user"]["device"]["device_id"])
         print(location)
@@ -133,7 +131,8 @@ def get_last_known_location():
     if not is_user_in_session():
         return "Unauthorized", 401
 
-    with sqlite3.connect('deviceservice.db') as context:
+    #with sqlite3.connect('deviceservice.db') as context:
+    with pyodbc.connect(db_connection_string) as context:
         service = LocationService(LocationRepository(context), CumulocityRepository(context))
         last_known_location = service.get_latest_location(session["user"]["device"]["device_id"])
 
@@ -157,7 +156,8 @@ def activate_cumulocity(state):
     else:
         return "Input was not valid", 400
 
-    with sqlite3.connect('deviceservice.db') as context:
+    #with sqlite3.connect('deviceservice.db') as context:
+    with pyodbc.connect(db_connection_string) as context:
         service = LocationService(LocationRepository(context), CumulocityRepository(context))
         service.set_state(session["user"]["device"]["device_id"], bit)
 
@@ -170,8 +170,9 @@ def get_device_emergency_contacts():
     if not is_user_in_session():
         return "Unauthorized", 401
 
-    with sqlite3.connect('deviceservice.db') as context:
-        service = DashboardService(EmergencyRepositoryTest(context))
+    #with sqlite3.connect('deviceservice.db') as context:
+    with pyodbc.connect(db_connection_string) as context:
+        service = DashboardService(EmergencyRepository(context))
         emergency_contacts = service.get_ice_contacts_for_device(session["user"]["device"]["device_id"])
 
         return jsonify(emergency_contacts)
@@ -179,12 +180,12 @@ def get_device_emergency_contacts():
 
 @app.route('/api/device/ec/<ec_id>', methods=['DELETE'])
 def remove_device_emergency_contact(ec_id):
-
     if not is_user_in_session():
         return "Unauthorized", 401
 
-    with sqlite3.connect('deviceservice.db') as context:
-        service = DashboardService(EmergencyRepositoryTest(context))
+    #with sqlite3.connect('deviceservice.db') as context:
+    with pyodbc.connect(db_connection_string) as context:
+        service = DashboardService(EmergencyRepository(context))
 
         if service.remove_ice_contact_for_device(session["user"]["device"]["device_id"], ec_id):
             return "Successfully removed emergency contact.", 200
@@ -200,8 +201,9 @@ def add_device_emergency_contact():
 
     json_message = request.json
 
-    with sqlite3.connect('deviceservice.db') as context:
-        service = DashboardService(EmergencyRepositoryTest(context))
+    #with sqlite3.connect('deviceservice.db') as context:
+    with pyodbc.connect(db_connection_string) as context:
+        service = DashboardService(EmergencyRepository(context))
 
         ec_id = service.add_ice_contact_for_device(session["user"]["device"]["device_id"], json_message["phone_number"], json_message["name"])
 
@@ -235,7 +237,8 @@ def realtime_device_location_polling():
     i = 0
     while True:
         time.sleep(3)
-        with sqlite3.connect('deviceservice.db') as context:
+        #with sqlite3.connect('deviceservice.db') as context:
+        with pyodbc.connect(db_connection_string) as context:
             service = LocationService(LocationRepository(context), CumulocityRepository(context))
             active_devices = service.get_active_cumulocity_devices()
             for ad in active_devices:
@@ -250,12 +253,21 @@ def realtime_device_location_polling():
 
 
 def receive_sensor_data():
-    mqtt_service.begin_resources()
+    mqtt_service.begin_resources(db_connection_str=db_connection_string)
 
 
+def get_database_configurations():
+    with open('project_config_file.json', 'r') as file:
+        configs = file.read()
+
+    return json.loads(configs)['mcs_sql_server']
 
 
 if __name__ == '__main__':
+    # Configurations
+    db_config = get_database_configurations()
+    db_connection_string = f'Driver={db_config["driver"]};Server={db_config["server"]};Database={db_config["database"]};Uid={db_config["uid"]};Pwd={db_config["pwd"]};'
+
     # Start background processes
     x = threading.Thread(target=realtime_device_location_polling)
     x.start()

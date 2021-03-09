@@ -1,6 +1,6 @@
 import uuid
 
-from mcs_repositories import DeviceRepositoryInterface, EmergencyRepositoryInterface, CumulocityRepository, LocationRepository
+from mcs_repositories import DeviceRepositoryInterface, EmergencyRepositoryInterface, CumulocityRepositoryTest, LocationRepositoryTest
 
 
 # DTOS
@@ -38,7 +38,7 @@ class EmergencyContactDto:
 
 # SERVICES
 class AccountService:
-    def __init__(self, device_repo: DeviceRepositoryInterface, cumulocity_repo: CumulocityRepository):
+    def __init__(self, device_repo: DeviceRepositoryInterface, cumulocity_repo: CumulocityRepositoryTest):
         self._device_repo = device_repo
         self._cumulocity_repo = cumulocity_repo
 
@@ -90,7 +90,7 @@ class DashboardService:
 
 
 class LocationService:
-    def __init__(self, location_repo: LocationRepository, cumulocity_repo: CumulocityRepository):
+    def __init__(self, location_repo: LocationRepositoryTest, cumulocity_repo: CumulocityRepositoryTest):
         self._location_repo = location_repo
         self._cumulocity_repo = cumulocity_repo
 

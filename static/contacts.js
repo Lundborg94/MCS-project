@@ -118,8 +118,6 @@ const addToList = (function () { // Note: this function is constructed
         const contactNameText = listItem.getElementsByClassName("contact-name")[0];
         const phoneNumberText = listItem.getElementsByClassName("phone-number")[0];
 
-        console.log(contactNameText);
-
         const formatted = tryFormatPhoneNumber(phoneNumber);
         if (formatted) {
             phoneNumberText.innerHTML = formatted;
