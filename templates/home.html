@@ -7,10 +7,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" 
     rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" 
     crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='custom.css') }}">
+    <title>MCS Dashboard</title>
 
-    <title>Motorcycle Crash Sensor</title>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark justify-content-center">
@@ -20,6 +22,10 @@
         </a>
       </nav>
       </div>
+      <ul class="flex-container">
+        <li class="flex-item"><a href="contacts.html"><img src="https://img.icons8.com/clouds/150/000000/phonelink-ring--v1.png"/></a><br>Contacts</li>
+        <li class="flex-item"><a href="#"><img src="https://img.icons8.com/bubbles/150/000000/motorbike-helmet.png"/></a><br>Account</li>
+      </ul>
 </body>
 
 </html>
