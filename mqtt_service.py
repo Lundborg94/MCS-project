@@ -18,18 +18,18 @@ message_template = """
 
 def on_message_received(topic, payload, dup, qos, retain, **kwargs):
     print("Received message from topic '{}': {}".format(topic, payload))
-    message = json.loads(payload.decode('utf-8'))
+    message = payload.decode('utf-8')
 
-    if message['value'] == 'crash':
+    if message:
         with sqlite3.connect('deviceservice.db') as context:
             service = mcs_services.DashboardService(mcs_repositories.EmergencyRepositoryTest(context))
-            ice_contacts = service.get_ice_contacts_for_device(message['device_id'])
+            ice_contacts = service.get_ice_contacts_for_device(message)
             for contact in ice_contacts:
 
                 phone_number = contact['phone_number']
                 device_location = mcs_services.LocationService(mcs_repositories.LocationRepository(context),
                                                                mcs_repositories.CumulocityRepository(context))
-                gps_location = device_location.get_latest_location(message['device_id'])
+                gps_location = device_location.get_latest_location(message)
                 if gps_location:
                     try:
                         msg = message_template.format(gps_location['longitude'], gps_location['latitude'])
