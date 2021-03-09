@@ -30,7 +30,7 @@ class DeviceRepositoryInterface:
         """Fetches a device with the specified id from current context"""
         raise NotImplementedError()
 
-    def add_device(self, id: uuid, name: str, password):
+    def add_device(self, id: uuid, name: str, password, color, brand):
         """Adds a device to current context"""
         raise NotImplementedError()
 
@@ -49,7 +49,7 @@ class EmergencyRepositoryInterface:
         """Fetches emergency contacts for specified device"""
         raise NotImplementedError()
 
-    def add_emergency_contact(self, device_id: uuid, phone_number: str) -> int:
+    def add_emergency_contact(self, device_id: uuid, phone_number: str, name) -> int:
         """Adds an emergency contact to the current context. Returns the assigned contact id."""
         raise NotImplementedError()
 
@@ -85,8 +85,8 @@ class DeviceRepositoryTest(DeviceRepositoryInterface):
 
         return device
 
-    def add_device(self, id: uuid, name: str, password: str):
-        self.__context.execute('INSERT INTO Device VALUES (?, ?, ?, NULL)', [str(id), name, password])
+    def add_device(self, id: uuid, name: str, password: str, color, brand):
+        self.__context.execute('INSERT INTO Device VALUES (?, ?, ?, ?, ?, NULL)', [str(id), name, color, brand, password])
         self.__context.commit()
 
     def remove_device(self, id: uuid):
@@ -111,9 +111,9 @@ class EmergencyRepositoryTest(EmergencyRepositoryInterface):
         tups = cursor.fetchall()
         return [EmergencyContact(tup[0], tup[1], tup[2]) for tup in tups]
 
-    def add_emergency_contact(self, device_id: uuid, phone_number: str):
-        cursor = self.__context.execute('INSERT INTO EmergencyContact VALUES (?, ?, ?)',
-                                        [None, str(device_id), phone_number])
+    def add_emergency_contact(self, device_id: uuid, phone_number: str, name):
+        cursor = self.__context.execute('INSERT INTO EmergencyContact VALUES (NULL, ?, ?, ?)',
+                                        [str(device_id), name, phone_number])
         ec_id = cursor.lastrowid
         self.__context.commit()
         return ec_id

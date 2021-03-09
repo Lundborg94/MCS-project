@@ -5,9 +5,11 @@ from mcs_repositories import DeviceRepositoryInterface, EmergencyRepositoryInter
 
 # DTOS
 class DeviceDto:
-    def __init__(self, device_id, name):
+    def __init__(self, device_id, name, color, brand):
         self.id = device_id
         self.name = name
+        self.color = color
+        self.brand = brand
 
 
 class UserDto:
@@ -16,19 +18,22 @@ class UserDto:
 
 
 class AddUserDto:
-    def __init__(self, device_id: uuid, device_name, password, cumulocity_name, cumulocity_tenant_id, cumulocity_password):
+    def __init__(self, device_id: uuid, device_name, password, cumulocity_name, cumulocity_tenant_id, cumulocity_password, vehicle_color, vehicle_brand):
         self.device_id = device_id
         self.device_name = device_name
         self.password = password
         self.cumulocity_name = cumulocity_name
         self.cumulocity_tenant_id = cumulocity_tenant_id
         self.cumulocity_password = cumulocity_password
+        self.vehicle_color = vehicle_color
+        self.vehicle_brand = vehicle_brand
 
 
 class EmergencyContactDto:
-    def __init__(self, ec_id, phone_number):
+    def __init__(self, ec_id, phone_number, name):
         self.id = ec_id
         self.phone_number = phone_number
+        self.name = name
 
 
 # SERVICES
@@ -39,7 +44,7 @@ class AccountService:
 
     def add_user(self, user: AddUserDto):
         """Adds the user to the repository."""
-        self._device_repo.add_device(user.device_id, user.device_name, user.password)
+        self._device_repo.add_device(user.device_id, user.device_name, user.password, user.vehicle_color, user.vehicle_brand)
         self._cumulocity_repo.add_cumulocity(user.cumulocity_name, user.cumulocity_tenant_id, user.cumulocity_password, user.device_id, False)
 
     def get_user(self, device_id: uuid):
@@ -71,9 +76,9 @@ class DashboardService:
             "phone_number": ec.phone_number
         } for ec in ecs]
 
-    def add_ice_contact_for_device(self, device_id, phone_number):
+    def add_ice_contact_for_device(self, device_id, phone_number, name):
         """Adds emergency contact for device and returns the id of the created emergency contact"""
-        return self._ice_repo.add_emergency_contact(device_id, phone_number)
+        return self._ice_repo.add_emergency_contact(device_id, phone_number, name)
 
     def remove_ice_contact_for_device(self, device_id, ec_id) -> bool:
         if self._ice_repo.device_has_contact_id(device_id, ec_id):

@@ -72,6 +72,8 @@ def register():
         name = request.form['deviceName']
         password = request.form['password']
         vehicle = request.form['vehicle']
+        vehicle_color = request.form['vehicle_color']
+        vehicle_brand = request.form['vehicle_brand']
         cumulocity_name = request.form['cumulocityName']
         cumulocity_tenant_id = request.form['tenantId']
         cumulocity_password = request.form['cumulocityPassword']
@@ -87,7 +89,7 @@ def register():
             elif not name or not password or not deviceid or not vehicle or not cumulocity_name or not cumulocity_tenant_id or not cumulocity_password:
                 msg = 'Please fill out the form !'
             else:
-                account_service.add_user(AddUserDto(deviceid, name, password, cumulocity_name, cumulocity_tenant_id, cumulocity_password))
+                account_service.add_user(AddUserDto(deviceid, name, password, cumulocity_name, cumulocity_tenant_id, cumulocity_password, vehicle_color, vehicle_brand))
                 msg = 'You have successfully registered !'
                 return redirect(url_for('register_success', msg=msg))
 
