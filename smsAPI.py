@@ -24,6 +24,3 @@ def send_msg(phone_number, msg):
     # printing the sid after success
     print(message.sid)
 
-
-# if __name__ == '__main__':
-    # send_msg('+46733933020', 'hej hej')

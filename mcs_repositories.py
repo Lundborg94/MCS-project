@@ -91,13 +91,14 @@ class DeviceRepositoryTest(DeviceRepositoryInterface):
         return device
 
     def add_device(self, id: uuid, name: str, password: str, color, brand):
-        self.__context.execute('INSERT INTO Device VALUES (?, ?, ?, ?, ?, NULL)', [str(id), name, color, brand, password])
+        self.__context.execute('INSERT INTO Device VALUES (?, ?, ?, ?, ?, NULL)',
+                               [str(id), name, color, brand, password])
         self.__context.commit()
 
     def remove_device(self, id: uuid):
         self.__context.execute('DELETE FROM Device WHERE Id = ?', [str(id)])
         self.__context.commit()
-        
+
 
 class DeviceRepository(DeviceRepositoryInterface):
     def __init__(self, context: pyodbc.Connection):
@@ -148,7 +149,8 @@ class EmergencyRepositoryTest(EmergencyRepositoryInterface):
     def get_emergency_contacts_for_device(self, device_id: uuid) -> list[EmergencyContact]:
         cursor = self.__context.execute('SELECT * FROM EmergencyContact WHERE DeviceId = ?', [device_id])
         tups = cursor.fetchall()
-        return [EmergencyContact(id=ec_id, device_id=d_id, name=name, phone_number=phone_number) for ec_id, d_id, name, phone_number in tups]
+        return [EmergencyContact(id=ec_id, device_id=d_id, name=name, phone_number=phone_number) for
+                ec_id, d_id, name, phone_number in tups]
 
     def add_emergency_contact(self, device_id: uuid, phone_number: str, name):
         cursor = self.__context.execute('INSERT INTO EmergencyContact VALUES (NULL, ?, ?, ?)',
@@ -242,7 +244,7 @@ class CumulocityRepositoryTest:
 
     def add_cumulocity(self, cumulocity_username, cumulocity_tenant_id, cumulocity_password, user_id, active):
         cursor = self.__context.execute('INSERT INTO Cumulocity VALUES (null, ?, ?, ?, ?)',
-                               [cumulocity_username, cumulocity_tenant_id, cumulocity_password, active])
+                                        [cumulocity_username, cumulocity_tenant_id, cumulocity_password, active])
         cumulocity_id = cursor.lastrowid
         self.__context.commit()
 
@@ -378,4 +380,3 @@ class LocationRepository:
             "altitude": altitude,
             "date_time": created_date_time
         }
-

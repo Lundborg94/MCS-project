@@ -1,12 +1,8 @@
-from awscrt import io, mqtt, auth, http
+from awscrt import io, mqtt, auth
 from awsiot import mqtt_connection_builder
 
 import time
-import uuid
 import json
-import mcs_services
-import mcs_repositories
-import sqlite3
 import smsAPI
 import pyodbc
 
@@ -19,26 +15,24 @@ message_template = """
     Please make sure that they are alright or contact the emergency services!
 """
 
-
 db_connection_string = None
 
 
 def on_message_received(topic, payload, dup, qos, retain, **kwargs):
     print("Received message from topic '{}': {}".format(topic, payload))
-    message = payload.decode('utf-8')
+    message = json.loads(payload.decode('utf-8'))
 
-    if message:
-        #with sqlite3.connect('deviceservice.db') as context:
+    if message['event'] == 'crash':
         with pyodbc.connect(db_connection_string) as context:
             dashboard_service = DashboardService(EmergencyRepository(context))
-            ice_contacts = dashboard_service.get_ice_contacts_for_device(message)
+            ice_contacts = dashboard_service.get_ice_contacts_for_device(message['device_id'])
             for contact in ice_contacts:
 
                 phone_number = contact['phone_number']
                 print(phone_number)
                 device_service = LocationService(LocationRepository(context),
                                                  CumulocityRepository(context))
-                gps_location = device_service.get_latest_location(message)
+                gps_location = device_service.get_latest_location(message['device_id'])
                 if gps_location:
                     try:
                         msg = message_template.format(gps_location['longitude'], gps_location['latitude'])
@@ -49,6 +43,22 @@ def on_message_received(topic, payload, dup, qos, retain, **kwargs):
                         print(e)
                 else:
                     print('Could not find GPS location')
+    elif message['event'] == 'on_off_switch':
+        bit = None
+        if message['state'] == "on":
+            bit = True
+        elif message['state'] == "off":
+            bit = False
+        else:
+            return "Input was not valid", 400
+
+        with pyodbc.connect(db_connection_string) as context:
+            service = LocationService(LocationRepository(context), CumulocityRepository(context))
+            service.set_state(message['device_id'], bit)
+
+            print("State is now {}".format(message['state']))
+    else:
+        print('Invalid event type')
 
 
 def on_connection_interrupted(connection, error, **kwargs):

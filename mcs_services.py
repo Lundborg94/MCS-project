@@ -1,6 +1,7 @@
 import uuid
 
-from mcs_repositories import DeviceRepositoryInterface, EmergencyRepositoryInterface, CumulocityRepositoryTest, LocationRepositoryTest
+from mcs_repositories import DeviceRepositoryInterface, EmergencyRepositoryInterface, CumulocityRepositoryTest, \
+    LocationRepositoryTest
 
 
 # DTOS
@@ -18,7 +19,8 @@ class UserDto:
 
 
 class AddUserDto:
-    def __init__(self, device_id: uuid, device_name, password, cumulocity_name, cumulocity_tenant_id, cumulocity_password, vehicle_color, vehicle_brand):
+    def __init__(self, device_id: uuid, device_name, password, cumulocity_name, cumulocity_tenant_id,
+                 cumulocity_password, vehicle_color, vehicle_brand):
         self.device_id = device_id
         self.device_name = device_name
         self.password = password
@@ -44,15 +46,18 @@ class AccountService:
 
     def add_user(self, user: AddUserDto):
         """Adds the user to the repository."""
-        self._device_repo.add_device(user.device_id, user.device_name, user.password, user.vehicle_color, user.vehicle_brand)
-        self._cumulocity_repo.add_cumulocity(user.cumulocity_name, user.cumulocity_tenant_id, user.cumulocity_password, user.device_id, False)
+        self._device_repo.add_device(user.device_id, user.device_name, user.password, user.vehicle_color,
+                                     user.vehicle_brand)
+        self._cumulocity_repo.add_cumulocity(user.cumulocity_name, user.cumulocity_tenant_id, user.cumulocity_password,
+                                             user.device_id, False)
 
     def get_user(self, device_id: uuid):
         """Returns the specified user from the repository. Returns 'None' if the user does not exist."""
         device_entity = self._device_repo.get_device(device_id)
         if not device_entity:
             return None
-        device = DeviceDto(device_entity.id, device_entity.name, device_entity.vehicle_color, device_entity.vehicle_brand)
+        device = DeviceDto(device_entity.id, device_entity.name, device_entity.vehicle_color,
+                           device_entity.vehicle_brand)
         return UserDto(device)
 
     def get_user_password(self, device_id: uuid):

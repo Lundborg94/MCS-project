@@ -16,7 +16,7 @@ def create_tables():
                 Password NVARCHAR NOT NULL,
                 Active BIT NOT NULL
             )
-        """)        
+        """)
 
         # Create Device table
         conn.execute("""

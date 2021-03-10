@@ -1,4 +1,3 @@
-import sqlite3
 import json
 import threading
 import time
@@ -10,8 +9,7 @@ from flask import Flask, render_template, redirect, url_for, request, session, m
 from flask.sessions import SecureCookieSessionInterface
 
 from mcs_services import AccountService, AddUserDto, LocationService, DashboardService
-from mcs_repositories import DeviceRepositoryTest, CumulocityRepositoryTest, LocationRepositoryTest, EmergencyRepositoryTest, DeviceRepository, EmergencyRepository, CumulocityRepository, LocationRepository
-
+from mcs_repositories import DeviceRepository, EmergencyRepository, CumulocityRepository, LocationRepository
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "ITSASECRET"
@@ -33,7 +31,7 @@ def login():
         device_id = request.form['deviceID']
         req_password = request.form['password']
 
-        #with sqlite3.connect('deviceservice.db') as context:
+        # with sqlite3.connect('deviceservice.db') as context:
         with pyodbc.connect(db_connection_string) as context:
             service = AccountService(DeviceRepository(context), CumulocityRepository(context))
             correct_password = service.get_user_password(device_id)
@@ -74,7 +72,7 @@ def register():
         cumulocity_tenant_id = request.form['tenantId']
         cumulocity_password = request.form['cumulocityPassword']
 
-        #with sqlite3.connect('deviceservice.db') as context:
+        # with sqlite3.connect('deviceservice.db') as context:
         with pyodbc.connect(db_connection_string) as context:
             account_service = AccountService(DeviceRepository(context), CumulocityRepository(context))
 
@@ -86,7 +84,9 @@ def register():
             elif not name or not password or not deviceid or not vehicle or not cumulocity_name or not cumulocity_tenant_id or not cumulocity_password:
                 msg = 'Please fill out the form !'
             else:
-                account_service.add_user(AddUserDto(deviceid, name, password, cumulocity_name, cumulocity_tenant_id, cumulocity_password, vehicle_color, vehicle_brand))
+                account_service.add_user(
+                    AddUserDto(deviceid, name, password, cumulocity_name, cumulocity_tenant_id, cumulocity_password,
+                               vehicle_color, vehicle_brand))
                 msg = 'You have successfully registered !'
                 return redirect(url_for('register_success', msg=msg))
 
@@ -94,10 +94,12 @@ def register():
         msg = 'Please fill out the form !'
     return render_template('register.html', msg=msg)
 
+
 @app.route('/registersuccess')
 def register_success():
     msg = request.args['msg']
     return render_template('register_success.html', msg=msg)
+
 
 @app.route('/')
 def home():
@@ -112,11 +114,10 @@ def home():
 
 @app.route('/api/location/current')
 def get_current_location():
-
     if not is_user_in_session():
         return "Unauthorized", 401
 
-    #with sqlite3.connect('deviceservice.db') as context:
+    # with sqlite3.connect('deviceservice.db') as context:
     with pyodbc.connect(db_connection_string) as context:
         service = LocationService(LocationRepository(context), CumulocityRepository(context))
         location = service.get_realtime_location(session["user"]["device"]["device_id"])
@@ -127,11 +128,10 @@ def get_current_location():
 
 @app.route('/api/location/lastknown')
 def get_last_known_location():
-
     if not is_user_in_session():
         return "Unauthorized", 401
 
-    #with sqlite3.connect('deviceservice.db') as context:
+    # with sqlite3.connect('deviceservice.db') as context:
     with pyodbc.connect(db_connection_string) as context:
         service = LocationService(LocationRepository(context), CumulocityRepository(context))
         last_known_location = service.get_latest_location(session["user"]["device"]["device_id"])
@@ -144,7 +144,6 @@ def get_last_known_location():
 
 @app.route('/api/cumulocity/state/<state>')
 def activate_cumulocity(state):
-
     if not is_user_in_session():
         return "Unauthorized", 401
 
@@ -156,7 +155,7 @@ def activate_cumulocity(state):
     else:
         return "Input was not valid", 400
 
-    #with sqlite3.connect('deviceservice.db') as context:
+    # with sqlite3.connect('deviceservice.db') as context:
     with pyodbc.connect(db_connection_string) as context:
         service = LocationService(LocationRepository(context), CumulocityRepository(context))
         service.set_state(session["user"]["device"]["device_id"], bit)
@@ -166,11 +165,10 @@ def activate_cumulocity(state):
 
 @app.route('/api/device/ec')
 def get_device_emergency_contacts():
-
     if not is_user_in_session():
         return "Unauthorized", 401
 
-    #with sqlite3.connect('deviceservice.db') as context:
+    # with sqlite3.connect('deviceservice.db') as context:
     with pyodbc.connect(db_connection_string) as context:
         service = DashboardService(EmergencyRepository(context))
         emergency_contacts = service.get_ice_contacts_for_device(session["user"]["device"]["device_id"])
@@ -183,7 +181,7 @@ def remove_device_emergency_contact(ec_id):
     if not is_user_in_session():
         return "Unauthorized", 401
 
-    #with sqlite3.connect('deviceservice.db') as context:
+    # with sqlite3.connect('deviceservice.db') as context:
     with pyodbc.connect(db_connection_string) as context:
         service = DashboardService(EmergencyRepository(context))
 
@@ -195,24 +193,23 @@ def remove_device_emergency_contact(ec_id):
 
 @app.route('/api/device/ec', methods=['POST'])
 def add_device_emergency_contact():
-
     if not is_user_in_session():
         return "Unauthorized", 401
 
     json_message = request.json
 
-    #with sqlite3.connect('deviceservice.db') as context:
+    # with sqlite3.connect('deviceservice.db') as context:
     with pyodbc.connect(db_connection_string) as context:
         service = DashboardService(EmergencyRepository(context))
 
-        ec_id = service.add_ice_contact_for_device(session["user"]["device"]["device_id"], json_message["phone_number"], json_message["name"])
+        ec_id = service.add_ice_contact_for_device(session["user"]["device"]["device_id"], json_message["phone_number"],
+                                                   json_message["name"])
 
         return str(ec_id), 200
 
 
 @app.route('/contacts')
 def contacts():
-
     if not is_user_in_session():
         return redirect(url_for('login'))
 
@@ -237,7 +234,7 @@ def realtime_device_location_polling():
     i = 0
     while True:
         time.sleep(3)
-        #with sqlite3.connect('deviceservice.db') as context:
+        # with sqlite3.connect('deviceservice.db') as context:
         with pyodbc.connect(db_connection_string) as context:
             service = LocationService(LocationRepository(context), CumulocityRepository(context))
             active_devices = service.get_active_cumulocity_devices()
