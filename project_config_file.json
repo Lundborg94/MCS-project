@@ -1,0 +1,29 @@
+{
+    "cumulocity_config": {
+      "username": "",
+      "password": "",
+      "tenant_id": ""
+    },
+    "mqtt_config": {
+      "endpoint": "",
+      "client_id": "",
+      "topic": "",
+      "cert_filepath": "",
+      "pri_key_filepath": "",
+      "ca_filepath": "",
+      "clean_session": false,
+      "keep_alive_secs": 6
+    },
+    "sms_config": {
+      "from_number": "",
+      "account_sid": "",
+      "auth_token": ""
+    },
+    "mcs_sql_server": {
+      "driver": "",
+      "server": "",
+      "database": "",
+      "uid": "",
+      "pwd": ""
+    }
+}
